@@ -13,9 +13,9 @@
 	Connection conn = null;
 	try {
 		Class.forName("org.postgresql.Driver");
-    String url = "jdbc:postgresql:cse135";
-  	String admin = "moojin";
-  	String password = "pwd";
+		String url = "jdbc:postgresql://159.203.253.157/marketPA3";
+	    String admin = "ltindall";
+	    String password = "P3anutNJ3lly";
   	conn = DriverManager.getConnection(url, admin, password);
 	}
 	catch (Exception e) {}
