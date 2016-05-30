@@ -70,54 +70,7 @@
               ResultSet.TYPE_SCROLL_INSENSITIVE,
               ResultSet.TYPE_SCROLL_INSENSITIVE
             );
-          	// ResultSet rs = stmt.executeQuery("SELECT p.id, p.name, p.sku, p.price, c.name as category_name" +
-          	// 	" FROM products p, categories c where is_delete = false and c.id = p.category_id");
-
-          	//Query to get Top-K users and results, may need to do other queries for row/column headers otherwise merge giant tuple
-          	/*
-          	WITH topProducts AS (SELECT product_id FROM orders GROUP BY product_id ORDER BY SUM(price*quantity) DESC LIMIT 10),
-          	topUsers AS (SELECT user_id,SUM(price*quantity) as sum FROM orders WHERE product_id IN (SELECT product_id FROM topProducts) GROUP BY user_id ORDER BY sum DESC LIMIT 20)
-			SELECT users.name AS customer,products.name AS product, SUM(orders.price*orders.quantity) FROM orders JOIN users ON user_id=users.id JOIN products ON product_id=products.id
-			WHERE user_id IN (SELECT user_id FROM topUsers) AND product_id IN (SELECT product_id FROM topProducts) GROUP BY users.name, products.name ORDER BY users.name, products.name;
-
-
-                EDIT by Lucas(I think be incorrect to limit topUsers to people who have purchases in topProducts, as
-                a topUser does not have to have any purchases in topProducts. I think I modified the query to correct that
-                as well as have the sum of purchases for that user.)
-                2nd EDIT: Fixed the query, now the order is correct and results match up with my modification on Ryan's for top-K
-                Some things in the WHERE may be redundant
-
-                WITH
-                topProducts AS (SELECT product_id,SUM(price*quantity) as topProductSum FROM orders GROUP BY product_id ORDER BY SUM(price*quantity) DESC LIMIT 10),
-                topUsers AS (SELECT user_id,SUM(price*quantity) as sum FROM orders GROUP BY user_id Order by sum DESC LIMIT 20)
-                SELECT users.id as id,users.name AS customer,products.name AS product, topUsers.sum as topSum, topProducts.topProductSum, SUM(orders.price*orders.quantity)
-                FROM orders JOIN users ON user_id=users.id JOIN products ON product_id=products.id JOIN topUsers on orders.user_id = topUsers.user_id JOIN topProducts on topProducts.product_id = orders.product_id
-                WHERE orders.user_id IN (SELECT user_id FROM topUsers) AND orders.product_id IN (SELECT product_id FROM topProducts)
-                GROUP BY users.id,users.name,products.name, topSum, topProducts.topProductSum
-                ORDER BY topSum DESC, topProducts.topProductSum DESC, users.name, products.name
-          	*/
-
-
-
-            // I think some of the following would be useful indices
-            // If I have time I'll start testing
-            // Indices can be added/removed by running the following sql
-            //CREATE INDEX students_first_name ON students(first_name)
-            //DROP INDEX students_first_name
-            //orders.is_cart
-            //products.category_id
-            //products.name
-            //users.name
-            //users.state
-            //orders.user_id
-            //orders.product_id
             String analyticsQuery = "";
-            /*analyticsQuery += "SELECT k.stateid AS userid, k.state AS username, k.totalState AS totaluser, k.prodid, k.prodname, k.totalprod, COALESCE(SUM(o.price * o.quantity),0) AS spent " +
-                "FROM (SELECT p.id AS prodId, p.name AS prodName, p.totalprod, u.id AS stateid, u.state AS state, u.totalstate " +
-                	"FROM (SELECT * FROM ( " +
-                    	"SELECT p3.id, p3.name, COALESCE(SUM(o.price * o.quantity),0) AS totalProd " +
-                        "FROM Products p3 LEFT JOIN Orders o ON p3.id = o.product_id " +
-                        "WHERE (o.is_cart = false OR o.is_cart IS NULL) ";*/
             analyticsQuery += 
             "SELECT k.stateid AS userid, k.state AS username, k.totalState AS totaluser, " +
             "k.prodid, k.prodname, k.totalprod, COALESCE(SUM(o.price * o.quantity),0) AS spent FROM " +
@@ -129,21 +82,9 @@
             if(category != 0){
             	analyticsQuery += "AND category_id = "+category+" ";
             }
-            /*analyticsQuery += "GROUP BY p3.id, p3.name ORDER BY totalprod DESC " +
-                  ") p2 OFFSET " + prodPageStart + " ROWS FETCH NEXT 11 ROWS ONLY) p, " +
-                         "(SELECT * FROM ( " +
-                             "SELECT MAX(u3.id) as id, u3.state, COALESCE(SUM(o.price * o.quantity),0) AS totalState " +
-                             "FROM Users u3 LEFT JOIN Orders o ON u3.id = o.user_id " +
-                             "WHERE o.is_cart = false OR o.is_cart IS NULL " +
-                             "GROUP BY u3.state " +
-                             "ORDER BY totalstate DESC " +
-                  ") u2 OFFSET " + userPageStart + " ROWS FETCH NEXT 21 ROWS ONLY) u " +
-                  ") k  JOIN Users u4 ON u4.state = k.state LEFT JOIN (SELECT * FROM Orders o2 WHERE o2.is_cart = false) o ON u4.id = o.user_id AND k.prodid = o.product_id " +
-                  "GROUP BY k.state, k.totalState, k.prodid, k.prodname, k.totalprod, k.stateid " +
-                  "ORDER BY k.totalstate DESC, k.totalprod DESC ";*/
             analyticsQuery += 
             "GROUP BY p3.id, p3.name ORDER BY totalprod DESC ) " +
-            "p2 OFFSET " + prodPageStart + " ROWS FETCH NEXT 11 ROWS ONLY) p, " +
+            "p2 OFFSET " + prodPageStart + " ROWS FETCH NEXT 51 ROWS ONLY) p, " +
             	"(SELECT * FROM " +
             		"( SELECT MAX(s.id) as id, s.name, COALESCE(SUM(o.price * o.quantity),0) " +
             		"AS totalState FROM Users u3 LEFT JOIN Orders o ON u3.id = o.user_id LEFT JOIN States s ON u3.state_id = s.id WHERE " +
@@ -221,12 +162,12 @@
                 if(count == 0) {
                   firstId = rs.getInt("userId");
                 }
-                if(count >= 10 && rs.getInt("userId") == firstId){
+                if(count >= 50 && rs.getInt("userId") == firstId){
                     moreProducts = true;
                     break;
                 }
-                //only get 10 products or only get as many products as available if less than 10
-                if(count >= 10 || rs.getInt("userId") != firstId) {
+                //only get 50 products or only get as many products as available if less than 50
+                if(count >= 50 || rs.getInt("userId") != firstId) {
                   break;
                 } %>
               <td style="font-weight: bold"><%= rs.getString("prodname") %> (<%= df.format(rs.getDouble("totalProd")) %>)</td>
@@ -238,7 +179,7 @@
         <%
             if(moreProducts){
         %>
-                <td><button class="btn btn-link" onclick="nextProdPages()">Next 10 products</button></td>
+                <td><button class="btn btn-link" onclick="nextProdPages()">Next 50 products</button></td>
         <%
             }
         %>
@@ -270,7 +211,7 @@
     	          <td style="font-weight: bold"><%=rs.getString("username") %> (<%= df.format(rs.getDouble("totalUser")) %>)</td>
     	          <td><%= df.format(rs.getDouble("spent")) %></td>
     	        <% } else { /* just another column */
-    	            if(prodCount >= 10){
+    	            if(prodCount >= 50){
     	                continue;
     	            }
     	        %>
@@ -307,12 +248,11 @@ function nextUserPages() {
 }
 function nextProdPages() {
   var prodPageStart = document.getElementById("prodPageStart");
-  prodPageStart.value = parseInt(prodPageStart.value) + 10;
+  prodPageStart.value = parseInt(prodPageStart.value) + 50;
   document.getElementById("queryForm").submit();
 }
 </script>
 <%
-
     long endJsp =  System.currentTimeMillis();
     out.print("<p>Query time: "+((double)(endTime - startTime))/1000+" seconds</p>");
     out.print("<p>JSP load time: "+((double)(endJsp - startJsp))/1000+" seconds</p>");
