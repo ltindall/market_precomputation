@@ -23,7 +23,7 @@
 	catch (Exception e) {}
 	if ("POST".equalsIgnoreCase(request.getMethod())) {
 		String action = request.getParameter("submit");
-		if (action.equals("insert")) {
+		if (action != null && action.equals("insert")) {
 			int queries_num = Integer.parseInt(request.getParameter("queries_num"));
 			Random rand = new Random();
 			int random_num = rand.nextInt(1) + 30;
@@ -32,7 +32,7 @@
 			stmt.executeQuery("SELECT proc_insert_orders(" + queries_num + "," + random_num + ")");
 			out.println("<script>alert('" + queries_num + " orders are inserted!');</script>");
 		}
-		else if (action.equals("refresh")) {
+		else if (action != null && action.equals("refresh")) {
 			//Need to implement.
 		}
 	}
@@ -45,14 +45,6 @@
         long startTime = -1;
         long endTime = -1;
 	if ("POST".equalsIgnoreCase(request.getMethod())) {
-		//String action = request.getParameter("submit");
-
-            // row option for query
-            String rowOption = request.getParameter("row");
-
-            // order option for query
-            String orderOption = request.getParameter("order");
-
             // category id for query, if all categories then it equals 0
             try{
             	category = Integer.parseInt(request.getParameter("category"));
@@ -120,41 +112,24 @@
             //orders.user_id
             //orders.product_id
             String analyticsQuery = "";
-            if(rowOption != null && rowOption.equals("Customers")){
-            	analyticsQuery += "SELECT k.userid, k.username, k.totaluser, k.prodid, k.prodname, k.totalprod, COALESCE(SUM(o.price * o.quantity),0) AS spent " +
-            	"FROM (SELECT p.id AS prodId, p.name AS prodName, p.totalprod, u.id AS userId, u.name AS username, u.totaluser " +
-                	"FROM (SELECT * FROM ( " +
-                		"SELECT p3.id, p3.name, COALESCE(SUM(o.price * o.quantity),0) AS totalProd " +
-                 		"FROM Products p3 LEFT JOIN Orders o ON p3.id = o.product_id " +
-                               "WHERE (o.is_cart = false OR o.is_cart IS NULL) ";
-            	if(category != 0){
-                	analyticsQuery += "AND category_id = "+category+" ";
-                }
-                analyticsQuery += "GROUP BY p3.id, p3.name ORDER BY totalProd DESC " +
-                    ") p2 OFFSET " + prodPageStart + " ROWS FETCH NEXT 11 ROWS ONLY) p, " +
-                           "(SELECT * FROM ( " +
-                               "SELECT u3.id, u3.name, COALESCE(SUM(o.price * o.quantity),0) AS totalUser " +
-                               "FROM Users u3 LEFT JOIN Orders o ON u3.id = o.user_id " +
-                               "WHERE o.is_cart = false OR o.is_cart IS NULL " +
-                               "GROUP BY u3.id, u3.name " +
-                               "ORDER BY totalUser DESC " +
-                    ") u2 OFFSET " + userPageStart + " ROWS FETCH NEXT 21 ROWS ONLY) u " +
-                    ") k LEFT JOIN (SELECT * FROM Orders o2 WHERE o2.is_cart = false) o ON k.userid = o.user_id AND k.prodid = o.product_id " +
-                    "GROUP BY k.userid, k.username, k.totaluser, k.prodid, k.prodname, k.totalprod " +
-                "ORDER BY k.totaluser DESC, k.totalprod DESC,k.username ASC, k.prodname ASC ";
-            	//rs = stmt.executeQuery(analyticsQuery);
-            }
-            else if(rowOption != null && rowOption.equals("States")){
-            	analyticsQuery += "SELECT k.stateid AS userid, k.state AS username, k.totalState AS totaluser, k.prodid, k.prodname, k.totalprod, COALESCE(SUM(o.price * o.quantity),0) AS spent " +
+            /*analyticsQuery += "SELECT k.stateid AS userid, k.state AS username, k.totalState AS totaluser, k.prodid, k.prodname, k.totalprod, COALESCE(SUM(o.price * o.quantity),0) AS spent " +
                 "FROM (SELECT p.id AS prodId, p.name AS prodName, p.totalprod, u.id AS stateid, u.state AS state, u.totalstate " +
                 	"FROM (SELECT * FROM ( " +
                     	"SELECT p3.id, p3.name, COALESCE(SUM(o.price * o.quantity),0) AS totalProd " +
                         "FROM Products p3 LEFT JOIN Orders o ON p3.id = o.product_id " +
-                        "WHERE (o.is_cart = false OR o.is_cart IS NULL) ";
-                if(category != 0){
-                	analyticsQuery += "AND category_id = "+category+" ";
-                }
-                analyticsQuery += "GROUP BY p3.id, p3.name ORDER BY totalprod DESC " +
+                        "WHERE (o.is_cart = false OR o.is_cart IS NULL) ";*/
+            analyticsQuery += 
+            "SELECT k.stateid AS userid, k.state AS username, k.totalState AS totaluser, " +
+            "k.prodid, k.prodname, k.totalprod, COALESCE(SUM(o.price * o.quantity),0) AS spent FROM " +
+            	"(SELECT p.id AS prodId, p.name AS prodName, p.totalprod, " +
+            	"u.id AS stateid, u.name AS state, u.totalstate FROM " +
+            		"(SELECT * FROM ( SELECT p3.id, p3.name, COALESCE(SUM(o.price * o.quantity),0) AS " +
+            		"totalProd FROM Products p3 LEFT JOIN Orders o ON p3.id = o.product_id WHERE " +
+            		"(o.is_cart = false OR o.is_cart IS NULL)";
+            if(category != 0){
+            	analyticsQuery += "AND category_id = "+category+" ";
+            }
+            /*analyticsQuery += "GROUP BY p3.id, p3.name ORDER BY totalprod DESC " +
                   ") p2 OFFSET " + prodPageStart + " ROWS FETCH NEXT 11 ROWS ONLY) p, " +
                          "(SELECT * FROM ( " +
                              "SELECT MAX(u3.id) as id, u3.state, COALESCE(SUM(o.price * o.quantity),0) AS totalState " +
@@ -165,9 +140,19 @@
                   ") u2 OFFSET " + userPageStart + " ROWS FETCH NEXT 21 ROWS ONLY) u " +
                   ") k  JOIN Users u4 ON u4.state = k.state LEFT JOIN (SELECT * FROM Orders o2 WHERE o2.is_cart = false) o ON u4.id = o.user_id AND k.prodid = o.product_id " +
                   "GROUP BY k.state, k.totalState, k.prodid, k.prodname, k.totalprod, k.stateid " +
-                  "ORDER BY k.totalstate DESC, k.totalprod DESC ";
+                  "ORDER BY k.totalstate DESC, k.totalprod DESC ";*/
+            analyticsQuery += 
+            "GROUP BY p3.id, p3.name ORDER BY totalprod DESC ) " +
+            "p2 OFFSET " + prodPageStart + " ROWS FETCH NEXT 11 ROWS ONLY) p, " +
+            	"(SELECT * FROM " +
+            		"( SELECT MAX(s.id) as id, s.name, COALESCE(SUM(o.price * o.quantity),0) " +
+            		"AS totalState FROM Users u3 LEFT JOIN Orders o ON u3.id = o.user_id LEFT JOIN States s ON u3.state_id = s.id WHERE " +
+            		"o.is_cart = false OR o.is_cart IS NULL GROUP BY s.name ORDER BY totalstate DESC ) " +
+             		"u2 OFFSET " + userPageStart + " ROWS FETCH NEXT 21 ROWS ONLY) u ) k  JOIN Users u4 ON u4.state_id = k.stateid LEFT JOIN " +
+            	"(SELECT * FROM Orders o2 WHERE o2.is_cart = false) o ON u4.id = o.user_id AND " +
+            	"k.prodid = o.product_id GROUP BY k.state, k.totalState, k.prodid, k.prodname, k.totalprod, " +
+            	"k.stateid ORDER BY k.totalstate DESC, k.totalprod DESC;";
                   //rs = stmt.executeQuery(analyticsQuery);
-            }
             if(!analyticsQuery.equals("")){
             	startTime = System.currentTimeMillis();
                 rs = stmt.executeQuery(analyticsQuery);
@@ -191,24 +176,6 @@
 <div class="container">
     <div class="row">
         <form  class="form-inline" action="analytics.jsp" method="POST" id="queryForm">
-            <div class="form-group">
-                <label for="row">Row</label>
-                <select class="form-control" id="row" name="row">
-
-                    <%
-                        out.print("<option ");
-                        if(request.getParameter("row") != null && request.getParameter("row").equals("Customers")){
-                            out.print("selected");
-                        }
-                        out.println(" > Customers </option>");
-                        out.print("<option ");
-                        if(request.getParameter("row") != null && request.getParameter("row").equals("States")){
-                            out.print("selected");
-                        }
-                        out.println(" > States </option>");
-                    %>
-                </select>
-            </div>
             <div class="form-group">
                 <label for="row">Category</label>
                 <select class="form-control" id="category" name="category">
