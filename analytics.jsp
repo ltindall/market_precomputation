@@ -84,12 +84,12 @@
             }
             analyticsQuery += 
             "GROUP BY p3.id, p3.name ORDER BY totalprod DESC ) " +
-            "p2 OFFSET " + prodPageStart + " ROWS FETCH NEXT 51 ROWS ONLY) p, " +
+            "p2 LIMIT 50) p, " +
             	"(SELECT * FROM " +
             		"( SELECT MAX(s.id) as id, s.name, COALESCE(SUM(o.price * o.quantity),0) " +
             		"AS totalState FROM Users u3 LEFT JOIN Orders o ON u3.id = o.user_id LEFT JOIN States s ON u3.state_id = s.id WHERE " +
             		"o.is_cart = false OR o.is_cart IS NULL GROUP BY s.name ORDER BY totalstate DESC ) " +
-             		"u2 OFFSET " + userPageStart + " ROWS FETCH NEXT 51 ROWS ONLY) u ) k  JOIN Users u4 ON u4.state_id = k.stateid LEFT JOIN " +
+             		"u2 LIMIT 50) u ) k  JOIN Users u4 ON u4.state_id = k.stateid LEFT JOIN " +
             	"(SELECT * FROM Orders o2 WHERE o2.is_cart = false) o ON u4.id = o.user_id AND " +
             	"k.prodid = o.product_id GROUP BY k.state, k.totalState, k.prodid, k.prodname, k.totalprod, " +
             	"k.stateid ORDER BY k.totalstate DESC, k.totalprod DESC;";
@@ -155,7 +155,6 @@
         <td></td>
         <% int count = 0;
         int firstId = -1;
-        boolean moreProducts = false;
         if(rs != null){
         	while(rs.next()) {
                 //get first id
@@ -163,7 +162,6 @@
                   firstId = rs.getInt("userId");
                 }
                 if(count >= 50 && rs.getInt("userId") == firstId){
-                    moreProducts = true;
                     break;
                 }
                 //only get 50 products or only get as many products as available if less than 50
@@ -175,14 +173,6 @@
               } //end while
               rs.beforeFirst();
         }%>
-        
-        <%
-            if(moreProducts){
-        %>
-                <td><button class="btn btn-link" onclick="nextProdPages()">Next 50 products</button></td>
-        <%
-            }
-        %>
       </tr>
       <tr>
       <%
@@ -223,13 +213,6 @@
       }
        %>
       </tr>
-      <%
-        if(userCount > 50){
-      %>
-        <tr><td><button class="btn btn-link" onclick="nextUserPages()">Next 50 users</button></td></tr>
-      <%
-        }
-      %>
     </table>
   </div>
   <% } /* endif */ %>
