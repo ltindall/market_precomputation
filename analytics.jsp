@@ -148,7 +148,7 @@
             		"( SELECT MAX(s.id) as id, s.name, COALESCE(SUM(o.price * o.quantity),0) " +
             		"AS totalState FROM Users u3 LEFT JOIN Orders o ON u3.id = o.user_id LEFT JOIN States s ON u3.state_id = s.id WHERE " +
             		"o.is_cart = false OR o.is_cart IS NULL GROUP BY s.name ORDER BY totalstate DESC ) " +
-             		"u2 OFFSET " + userPageStart + " ROWS FETCH NEXT 21 ROWS ONLY) u ) k  JOIN Users u4 ON u4.state_id = k.stateid LEFT JOIN " +
+             		"u2 OFFSET " + userPageStart + " ROWS FETCH NEXT 51 ROWS ONLY) u ) k  JOIN Users u4 ON u4.state_id = k.stateid LEFT JOIN " +
             	"(SELECT * FROM Orders o2 WHERE o2.is_cart = false) o ON u4.id = o.user_id AND " +
             	"k.prodid = o.product_id GROUP BY k.state, k.totalState, k.prodid, k.prodname, k.totalprod, " +
             	"k.stateid ORDER BY k.totalstate DESC, k.totalprod DESC;";
@@ -260,7 +260,7 @@
     	        <% }
     	        else if(currId != newId) { //new user found, end old row make new one
     	          userCount += 1;
-    	          if(userCount > 20){
+    	          if(userCount > 50){
     	            break;
     	          }
     	          currId = newId;
@@ -283,9 +283,9 @@
        %>
       </tr>
       <%
-        if(userCount > 20){
+        if(userCount > 50){
       %>
-        <tr><td><button class="btn btn-link" onclick="nextUserPages()">Next 20 users</button></td></tr>
+        <tr><td><button class="btn btn-link" onclick="nextUserPages()">Next 50 users</button></td></tr>
       <%
         }
       %>
@@ -302,7 +302,7 @@ window.onload = function(){
 }
 function nextUserPages() {
   var userPageStart = document.getElementById("userPageStart");
-  userPageStart.value = parseInt(userPageStart.value) + 20;
+  userPageStart.value = parseInt(userPageStart.value) + 50;
   document.getElementById("queryForm").submit();
 }
 function nextProdPages() {
