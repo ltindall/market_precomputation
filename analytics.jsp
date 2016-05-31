@@ -168,7 +168,7 @@
                 if(count >= 50 || rs.getInt("userId") != firstId) {
                   break;
                 } %>
-              <td style="font-weight: bold"><%= rs.getString("prodname") %> (<%= df.format(rs.getDouble("totalProd")) %>)</td>
+              <td id="<%= "-1," + rs.getInt("prodid")%>" style="font-weight: bold"><%= rs.getString("prodname") %> (<%= df.format(rs.getDouble("totalProd")) %>)</td>
               <% count++;
               } //end while
               rs.beforeFirst();
@@ -186,8 +186,8 @@
     	        if(currId == -1) {
     	          currId = newId;
     	          prodCount = 1;%>
-    	          <td style="font-weight: bold"><%=rs.getString("username") %> (<%= df.format(rs.getDouble("totalUser")) %>)</td>
-    	          <td><%= df.format(rs.getDouble("spent")) %></td>
+    	          <td id="<%= rs.getInt("userid") + ",-1"%>" style="font-weight: bold"><%=rs.getString("username") %> (<%= df.format(rs.getDouble("totalUser")) %>)</td>
+    	          <td id="<%= rs.getInt("userid") + "," + rs.getInt("prodid")%>"><%= df.format(rs.getDouble("spent")) %></td>
     	        <% }
     	        else if(currId != newId) { //new user found, end old row make new one
     	          userCount += 1;
@@ -198,14 +198,14 @@
     	          prodCount = 1;%>
     	        </tr>
     	        <tr>
-    	          <td style="font-weight: bold"><%=rs.getString("username") %> (<%= df.format(rs.getDouble("totalUser")) %>)</td>
-    	          <td><%= df.format(rs.getDouble("spent")) %></td>
+    	          <td id="<%= rs.getInt("userid") + ",-1"%>" style="font-weight: bold"><%=rs.getString("username") %> (<%= df.format(rs.getDouble("totalUser")) %>)</td>
+    	          <td id="<%= rs.getInt("userid") + "," + rs.getInt("prodid")%>"><%= df.format(rs.getDouble("spent")) %></td>
     	        <% } else { /* just another column */
     	            if(prodCount >= 50){
     	                continue;
     	            }
     	        %>
-    	          <td><%= df.format(rs.getDouble("spent")) %></td>
+    	          <td id="<%= rs.getInt("userid") + "," + rs.getInt("prodid")%>"><%= df.format(rs.getDouble("spent")) %></td>
     	        <%
     	            prodCount += 1;
     	            } /* end ifelse */ %>
