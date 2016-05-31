@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page import="java.sql.*, javax.sql.*, javax.naming.*, java.text.DecimalFormat, java.util.*"%>
+<%@ page import="java.sql.*, javax.sql.*, javax.naming.*, java.text.DecimalFormat, java.util.*, org.json.*"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -26,7 +26,7 @@
 		if (action != null && action.equals("insert")) {
 			int queries_num = Integer.parseInt(request.getParameter("queries_num"));
 			Random rand = new Random();
-			int random_num = rand.nextInt(1) + 30;
+			int random_num = rand.nextInt(30) + 1;
 			if (queries_num < random_num) random_num = queries_num;
 			Statement stmt = conn.createStatement();
 			stmt.executeQuery("SELECT proc_insert_orders(" + queries_num + "," + random_num + ")");
@@ -38,32 +38,15 @@
 	}
 
         int category = 0;
-        int userPageStart = 0;
-        int prodPageStart = 0;
         ResultSet rs = null;
-        boolean hideForm = false;
         long startTime = -1;
         long endTime = -1;
 	if ("POST".equalsIgnoreCase(request.getMethod())) {
             // category id for query, if all categories then it equals 0
             try{
             	category = Integer.parseInt(request.getParameter("category"));
-
-
-                if(request.getParameter("userPageStart") != null && !request.getParameter("userPageStart").isEmpty()) {
-                  userPageStart = Integer.parseInt(request.getParameter("userPageStart"));
-                }
-
-                if(request.getParameter("prodPageStart") != null && !request.getParameter("prodPageStart").isEmpty()) {
-                  prodPageStart = Integer.parseInt(request.getParameter("prodPageStart"));
-                }
             }catch(NumberFormatException e){
             	//e.printStackTrace();
-            }
-            
-
-            if(userPageStart > 0 || prodPageStart > 0 ){
-                hideForm = true;
             }
 
             Statement stmt = conn.createStatement(
@@ -93,7 +76,6 @@
             	"(SELECT * FROM Orders o2 WHERE o2.is_cart = false) o ON u4.id = o.user_id AND " +
             	"k.prodid = o.product_id GROUP BY k.state, k.totalState, k.prodid, k.prodname, k.totalprod, " +
             	"k.stateid ORDER BY k.totalstate DESC, k.totalprod DESC;";
-                  //rs = stmt.executeQuery(analyticsQuery);
             if(!analyticsQuery.equals("")){
             	startTime = System.currentTimeMillis();
                 rs = stmt.executeQuery(analyticsQuery);
@@ -136,15 +118,7 @@
                     %>
                 </select>
             </div>
-            <% if(request.getParameter("userPageStart") != null && !request.getParameter("userPageStart").isEmpty()) { %>
-            <input type="number" name="userPageStart" id="userPageStart" style="display: none" value="<%=request.getParameter("userPageStart") %>">
-            <input type="number" name="prodPageStart" id="prodPageStart" style="display: none" value="<%=request.getParameter("prodPageStart") %>">
-            <% } else { %>
-            <input type="number" name="userPageStart" id="userPageStart" style="display: none" value="0">
-            <input type="number" name="prodPageStart" id="prodPageStart" style="display: none" value="0">
-            <% } %>
             <input class="btn btn-primary" type="submit" name="query" value="Run Query"/>
-
         </form>
     </div>
 </div>
@@ -216,25 +190,6 @@
     </table>
   </div>
   <% } /* endif */ %>
-
-<script>
-window.onload = function(){
-    if(<%= hideForm %> == true){
-        var queryForm = document.getElementById('queryForm');
-        queryForm.style.visibility = 'hidden';
-    }
-}
-function nextUserPages() {
-  var userPageStart = document.getElementById("userPageStart");
-  userPageStart.value = parseInt(userPageStart.value) + 50;
-  document.getElementById("queryForm").submit();
-}
-function nextProdPages() {
-  var prodPageStart = document.getElementById("prodPageStart");
-  prodPageStart.value = parseInt(prodPageStart.value) + 50;
-  document.getElementById("queryForm").submit();
-}
-</script>
 <%
     long endJsp =  System.currentTimeMillis();
     out.print("<p>Query time: "+((double)(endTime - startTime))/1000+" seconds</p>");
@@ -245,8 +200,24 @@ function nextProdPages() {
 	<input type="number" name="queries_num">
 	<input class="btn btn-primary"  type="submit" name="submit" value="insert"/>
 </form>
-<form action="analytics.jsp" method="POST">
-	<input class="btn btn-success"  type="submit" name="submit" value="refresh"/>
-</form>
+	<button onclick='refreshData(<%=category %>)'>Refresh</button>
 </body>
+<script type="text/javascript">
+function refreshData(category){
+	var request = null;
+	try{
+		request = new XMLHttpRequest();
+	}catch(execpion){
+		document.write("failure");
+	}
+	
+	Request.onreadystatechange = function(){
+		if(request.readyState == 4){
+			document.write(request.responseText);
+		}
+	}
+	request.open("POST", "analyticsRefreshGenerator.jsp", true);
+	request.send("category=" + category);
+}
+</script>
 </html>
