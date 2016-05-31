@@ -207,12 +207,10 @@ function refreshData(category){
 	var request = null;
 	try{
 		request = new XMLHttpRequest();
-	}catch(execpion){
-		document.write("failure");
-	}
-	
+	}catch(execpion){}
 	Request.onreadystatechange = function(){
-		if(request.readyState == 4){
+		if(request.readyState == XMLHttpRequest.DONE){
+			window.alert("success");
 			document.write(request.responseText);
 		}
 	}
