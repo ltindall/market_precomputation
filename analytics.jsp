@@ -208,10 +208,10 @@ function refreshData(category){
 	try{
 		request = new XMLHttpRequest();
 	}catch(execpion){}
-	Request.onreadystatechange = function(){
+	request.onreadystatechange = function(){
 		if(request.readyState == XMLHttpRequest.DONE){
 			window.alert("success");
-			document.write(request.responseText);
+			//document.write(request.responseText);
 		}
 	}
 	request.open("POST", "analyticsRefreshGenerator.jsp", true);
