@@ -17,12 +17,23 @@
 	}catch(Exception e){
 		category = 0;
 	}
-  int maxOrderId;
-  try{
+        int maxOrderId;
+        try{
 		maxOrderId = Integer.parseInt(request.getParameter("maxOrderId"));
 	}catch(Exception e){
 		maxOrderId = 0;
 	}
+
+        ResultSet newPurchases = null; 
+        Statement purchasesStmt = conn.createStatement(
+            ResultSet.TYPE_SCROLL_INSENSITIVE,
+            ResultSet.TYPE_SCROLL_INSENSITIVE
+          );
+        newPurchases = purchasesStmt.executeQuery("SELECT user_id, product_id, price  FROM orders WHERE id > "+maxOrderId+" GROUP BY user_id,product_id,price"); 
+        out.print("newpurchases:"); 
+        newPurchases.next(); 
+        out.print(newPurchases.getFloat("price")); 
+
 
 	ResultSet rs = null;
 	Statement stmt = conn.createStatement(
