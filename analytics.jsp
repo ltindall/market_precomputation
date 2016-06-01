@@ -55,7 +55,7 @@
               ResultSet.TYPE_SCROLL_INSENSITIVE
             );
             String analyticsQuery = "";
-            analyticsQuery += 
+            analyticsQuery +=
             "SELECT k.stateid AS userid, k.state AS username, k.totalState AS totaluser, " +
             "k.prodid, k.prodname, k.totalprod, COALESCE(SUM(o.price * o.quantity),0) AS spent FROM " +
             	"(SELECT p.id AS prodId, p.name AS prodName, p.totalprod, " +
@@ -66,7 +66,7 @@
             if(category != 0){
             	analyticsQuery += "AND category_id = "+category+" ";
             }
-            analyticsQuery += 
+            analyticsQuery +=
             "GROUP BY p3.id, p3.name ORDER BY totalprod DESC ) " +
             "p2 LIMIT 50) p, " +
             	"(SELECT * FROM " +
@@ -85,7 +85,12 @@
 	}
     Statement catStmt = conn.createStatement();
     ResultSet categories = catStmt.executeQuery("SELECT c.id,c.name FROM categories c");
-    DecimalFormat df = new DecimalFormat("#.00");
+    Statement orderStmt = conn.createStatement();
+    ResultSet ordersMaxId = orderStmt.executeQuery("SELECT MAX(id) AS maxOrderId FROM orders");
+    ordersMaxId.next();
+    int maxOrderId = ordersMaxId.getInt("maxOrderId");
+
+    DecimalFormat df = new DecimalFormat("#0.00");
 %>
 <body>
 <div class="collapse navbar-collapse">
@@ -201,10 +206,10 @@
 	<input type="number" name="queries_num">
 	<input class="btn btn-primary"  type="submit" name="submit" value="insert"/>
 </form>
-	<button onclick='refreshData(<%=category %>)'>Refresh</button>
+	<button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
 </body>
 <script type="text/javascript">
-function refreshData(category){
+function refreshData(category, maxOrderId) {
 	var request = null;
 	try{
 		request = new XMLHttpRequest();
@@ -215,7 +220,7 @@ function refreshData(category){
 		}
 	}
 	request.open("POST", "analyticsRefreshGenerator.jsp", true);
-	request.send("category=" + category);
+	request.send("category=" + category + "&maxOrderId=" + maxOrderId);
 }
 
 function updateTable(newData){

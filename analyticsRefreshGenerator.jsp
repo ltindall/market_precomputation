@@ -17,14 +17,20 @@
 	}catch(Exception e){
 		category = 0;
 	}
-	
+  int maxOrderId;
+  try{
+		maxOrderId = Integer.parseInt(request.getParameter("maxOrderId"));
+	}catch(Exception e){
+		maxOrderId = 0;
+	}
+
 	ResultSet rs = null;
 	Statement stmt = conn.createStatement(
             ResultSet.TYPE_SCROLL_INSENSITIVE,
             ResultSet.TYPE_SCROLL_INSENSITIVE
           );
           String analyticsQuery = "";
-          analyticsQuery += 
+          analyticsQuery +=
           "SELECT k.stateid AS userid, k.state AS username, k.totalState AS totaluser, " +
           "k.prodid, k.prodname, k.totalprod, COALESCE(SUM(o.price * o.quantity),0) AS spent FROM " +
           	"(SELECT p.id AS prodId, p.name AS prodName, p.totalprod, " +
@@ -35,7 +41,7 @@
           if(category != 0){
           	analyticsQuery += "AND category_id = "+category+" ";
           }
-          analyticsQuery += 
+          analyticsQuery +=
           "GROUP BY p3.id, p3.name ORDER BY totalprod DESC ) " +
           "p2 LIMIT 50) p, " +
           	"(SELECT * FROM " +
