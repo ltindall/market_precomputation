@@ -230,6 +230,12 @@ function updateTable(newData){
 			//find all columns in current set not in latest top 50
 			var purpleColumns = columnIds.filter(function(x) { return Object.keys(topLevel).indexOf(x) < 0; });
 			var newColumns = Object.keys(topLevel).filter(function(x) { return columnIds.indexOf(x) < 0; });
+			for(var i = 0; i < purpleColumns.length; ++i){
+				var elements = document.querySelectorAll('[id$=,'+ purpleColumns[i] + ']');
+				for(var j = 0; j < elements.length; ++j){
+					elements[i].style.color = "purple";
+				}
+			}
 			Object.keys(topLevel).forEach(function(key) {
 			    console.log(key, topLevel[key]);
 			});
