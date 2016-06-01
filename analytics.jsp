@@ -225,7 +225,7 @@ function updateTable(newData){
 			var columns = document.getElementsByClassName("columnHeader"); //get current columns
 			var columnIds;
 			for(var i = 0; i < columns.length; ++i){ //scrape column IDs off
-				columnIds[i] = x[i].id;
+				columnIds[i] = columns[i].id;
 			}
 			//find all columns in current set not in latest top 50
 			var purpleColumns = columnIds.filter(function(x) { return Object.keys(topLevel).indexOf(x) < 0; });
