@@ -124,7 +124,7 @@
 </div>
   <% if ("POST".equalsIgnoreCase(request.getMethod())) { %>
   <div>
-    <table class="table table-striped">
+    <table id="resultTable" class="table table-striped">
       <tr>
         <td></td>
         <% int count = 0;
@@ -142,7 +142,7 @@
                 if(count >= 50 || rs.getInt("userId") != firstId) {
                   break;
                 } %>
-              <td id="<%= "-1," + rs.getInt("prodid")%>" style="font-weight: bold"><%= rs.getString("prodname") %> (<%= df.format(rs.getDouble("totalProd")) %>)</td>
+              <td id="<%= "-1," + rs.getInt("prodid")%>" class="columnHeader" style="font-weight: bold"><%= rs.getString("prodname") %> (<%= df.format(rs.getDouble("totalProd")) %>)</td>
               <% count++;
               } //end while
               rs.beforeFirst();
@@ -210,12 +210,34 @@ function refreshData(category){
 	}catch(execpion){}
 	request.onreadystatechange = function(){
 		if(request.readyState == XMLHttpRequest.DONE){
-			window.alert("success");
-			//document.write(request.responseText);
+			updateTable(request.responseText);
 		}
 	}
 	request.open("POST", "analyticsRefreshGenerator.jsp", true);
 	request.send("category=" + category);
+}
+
+function updateTable(newData){
+	var table = document.getElementById('resultTable');
+	if(table){
+		try{
+			var topLevel = JSON.parse(newData); //build JSON object
+			var columns = document.getElementsByClassName("columnHeader"); //get current columns
+			var columnIds;
+			for(var i = 0; i < columns.length; ++i){ //scrape column IDs off
+				columnIds[i] = x[i].id;
+			}
+			//find all columns in current set not in latest top 50
+			var purpleColumns = columnIds.filter(function(x) { return Object.keys(topLevel).indexOf(x) < 0; });
+			var newColumns = Object.keys(topLevel).filter(function(x) { return columnIds.indexOf(x) < 0; });
+			Object.keys(topLevel).forEach(function(key) {
+			    console.log(key, topLevel[key]);
+			});
+			window.alert("success");
+		}catch(exception){
+			console.log(newData);
+		}
+	}
 }
 </script>
 </html>

@@ -11,7 +11,13 @@
         conn = DriverManager.getConnection(url, admin, password);
 	}
 	catch (Exception e) {}
-	int category = Integer.parseInt(request.getParameter("category"));
+	int category;
+	try{
+		category = Integer.parseInt(request.getParameter("category"));
+	}catch(Exception e){
+		category = 0;
+	}
+	
 	ResultSet rs = null;
 	Statement stmt = conn.createStatement(
             ResultSet.TYPE_SCROLL_INSENSITIVE,
