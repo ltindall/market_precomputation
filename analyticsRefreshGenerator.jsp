@@ -30,9 +30,18 @@
             ResultSet.TYPE_SCROLL_INSENSITIVE
           );
         newPurchases = purchasesStmt.executeQuery("SELECT user_id, product_id, price  FROM orders WHERE id > "+maxOrderId+" GROUP BY user_id,product_id,price"); 
-        out.print("newpurchases:"); 
-        newPurchases.next(); 
-        out.print(newPurchases.getFloat("price")); 
+
+        /* 
+        sql to fill precompute tables with initial data
+        insert into stateTotals (stateId, total)
+        select u.state_id , sum(o.price) from orders o, users u 
+        where o.user_id = u.id 
+        group by u.state_id
+
+        insert into productTotals (productId, total)
+        select o.product_id, sum(o.price) from orders o
+        group by o.product_id
+        */ 
 
 
 	ResultSet rs = null;
