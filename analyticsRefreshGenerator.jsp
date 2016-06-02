@@ -25,12 +25,41 @@
 		maxOrderId = 0;
 	}
 
+        conn.setAutoCommit(false);
+        ResultSet newPurchases = null;
+        Statement purchasesStmt = conn.createStatement(
+            ResultSet.TYPE_SCROLL_INSENSITIVE,
+            ResultSet.TYPE_SCROLL_INSENSITIVE
+          );
+        newPurchases = purchasesStmt.executeQuery("SELECT user_id, product_id, price  FROM orders WHERE id > "+maxOrderId+" GROUP BY user_id,product_id,price");
+
+        PreparedStatement prodTot = null;
+        prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where productId = ?");
+
+        while(newPurchases.next()){
+            prodTot.setDouble(1,newPurchases.getDouble("price"));
+            prodTot.setInt(2,newPurchases.getInt("product_id"));
+            prodTot.executeUpdate();
+        }
+        conn.commit();
+        /*
+        sql to fill precompute tables with initial data
+        insert into stateTotals (stateId, total)
+        select u.state_id , sum(o.price) from orders o, users u
+        where o.user_id = u.id
+        group by u.state_id
+
+        insert into productTotals (productId, total)
+        select o.product_id, sum(o.price) from orders o
+        group by o.product_id
+        */
+
   ResultSet newOrdersRS = null;
 	Statement newOrderStmt = conn.createStatement(
             ResultSet.TYPE_SCROLL_INSENSITIVE,
             ResultSet.TYPE_SCROLL_INSENSITIVE
           );
-  int herro = maxOrderId - 10;
+
   String newOrdersQuery = "SELECT user_id AS userId, product_id AS prodId, SUM(quantity * price) AS spent " +
                           "FROM orders " +
                           "WHERE id > " + (maxOrderId - 10) + " " +
@@ -83,7 +112,7 @@
   JSONObject output = new JSONObject();
   output.put("newOrders", newOrdersJson);
   output.put("topProducts", top50json);
-  output.put("newMaxOrderId", herro);
+  output.put("newMaxOrderId", newMaxOrderId);
 
   out.print(output.toString());
 
