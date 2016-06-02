@@ -298,8 +298,6 @@ function updateTable(newData) {
   for(var i = 0; i < rows.length; ++i){
       rowIds[i] = rows[i].id; 
   }
-  console.log(rowIds[0][0]);
-  console.log(columnIds[0][0]); 
   //find all columns in current set not in latest top 50
   var purpleColumns = [];
   purpleColumns = columnIds.filter(function(x) {
@@ -320,7 +318,7 @@ function updateTable(newData) {
 	  });
   });
   //update column headers to be red or black.
-  /*
+  document.getElementById("resultTable").style.color= "black";
   Object.keys(topLevel).forEach(function(key) {
 	  var element = document.getElementById("-1,"+topLevel[key].prodId);
 	  var number = element.innerHTML.substring(element.innerHTML.indexOf("(")+1, element.innerHTML.length-1);
@@ -331,10 +329,7 @@ function updateTable(newData) {
 		  element.style.color="black";
 	  }
   });
-  */
-  document.getElementById("resultTable").style.color= "black"; 
-  //update all red cells
-
+  //update all red cells NOT COLUMN HEADERS
   for(i = 0; i< rowIds.length; ++i ){
     for(j = 0; j < columnIds.length; ++j ){
         if(!((rowIds[i][0])+","+(columnIds[j][1]) in base.newOrders)){
@@ -343,16 +338,10 @@ function updateTable(newData) {
     }
   }
   for (var key in base.newOrders) {
-  console.log(key);
-  //console.log(document.getElementById("24,811"));  
     redCell = document.getElementById(key);
-    console.log("start"); 
     if(redCell != null) {
-      //console.log(key);
       redCell.style.color = "red";
-      console.log("innerhtml"); 
-      console.log(Number(redCell.innerHTML)); 
-      var newVal = parseFloat(Number(redCell.innerHTML))+parseFloat(Number(base.newOrders[key]).toFixed(2)); 
+      var newVal = Number(base.newOrders[key]).toFixed(2); 
       redCell.innerHTML = newVal; 
       //redCell.style.backgroundColor = "red";
       //redCell.innerHTML = (parseInt(redCell.innerHTML) + parseInt(base.newOrders[key]));

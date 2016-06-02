@@ -50,15 +50,14 @@
         PreparedStatement prodTot = null;
         prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where productId = ?");
 
-        while(newPurchasesByProduct.next()){
+        /*while(newPurchasesByProduct.next()){
         
-          
        
             prodTot.setDouble(1,newPurchasesByProduct.getDouble("price"));
             prodTot.setInt(2,newPurchasesByProduct.getInt("product_id"));
             prodTot.executeUpdate();
            
-        }
+        }*/
         //conn.commit();
       
         newPurchasesByProduct.beforeFirst();
@@ -67,11 +66,11 @@
         PreparedStatement stateTot = null;
         stateTot = conn.prepareStatement("UPDATE statetotals set total = total + ? where stateId = ?");
         //out.print("there");
-        while(newPurchasesByState.next()){
+        /*while(newPurchasesByState.next()){
             stateTot.setDouble(1,newPurchasesByState.getDouble("price"));
             stateTot.setInt(2, newPurchasesByState.getInt("state_id"));
             stateTot.executeUpdate();
-        }
+        }*/
         //conn.commit();
         conn.setAutoCommit(true);
   
