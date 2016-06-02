@@ -2,8 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*, javax.sql.*, javax.naming.*, org.json.*"%>
 <%
-       
-        //out.print("hello"); 
+
 	Connection conn = null;
 	try {
 		Class.forName("org.postgresql.Driver");
@@ -29,7 +28,7 @@
 
 
         // out.print("running proceesing");
-        conn.setAutoCommit(false);
+        //conn.setAutoCommit(false);
         ResultSet newPurchasesByProduct = null;
         ResultSet newPurchasesByState  = null;
         Statement purchasesStmt = conn.createStatement(
@@ -46,26 +45,31 @@
         PreparedStatement prodTot = null;
         prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where productId = ?");
 
-        //out.print("here"); 
         while(newPurchasesByProduct.next()){
+        
+          
             prodTot.setDouble(1,newPurchasesByProduct.getDouble("price"));
             prodTot.setInt(2,newPurchasesByProduct.getInt("product_id"));
             prodTot.executeUpdate();
+           
         }
-        conn.commit();
-
+        //conn.commit();
+      
         newPurchasesByProduct.beforeFirst();
+
 
         PreparedStatement stateTot = null;
         stateTot = conn.prepareStatement("UPDATE statetotals set total = total + ? where stateId = ?");
-        //out.print("there"); 
+        //out.print("there");
         while(newPurchasesByState.next()){
             stateTot.setDouble(1,newPurchasesByState.getDouble("price"));
             stateTot.setInt(2, newPurchasesByState.getInt("state_id"));
             stateTot.executeUpdate();
         }
-        conn.commit();
+        //conn.commit();
         conn.setAutoCommit(true);
+  
+
         /*
         sql to fill precompute tables with initial data
         insert into stateTotals (stateId, total)
@@ -78,7 +82,7 @@
         group by o.product_id
         */
 
-        //out.print("down here"); 
+        //out.print("down here");
   ResultSet newOrdersRS = null;
 	Statement newOrderStmt = conn.createStatement(
             ResultSet.TYPE_SCROLL_INSENSITIVE,

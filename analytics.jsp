@@ -307,6 +307,8 @@ function updateTable(newData) {
       // console.log(key);
       redCell.style.color = "red";
       redCell.innerHTML = Number(base.newOrders[key]).toFixed(2);
+      //redCell.style.backgroundColor = "red";
+      //redCell.innerHTML = (parseInt(redCell.innerHTML) + parseInt(base.newOrders[key]));
     }
   }
 
