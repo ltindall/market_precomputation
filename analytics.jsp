@@ -211,7 +211,7 @@
 
 </body>
 <script type="text/javascript">
-function insertOrders(){
+function insertOrders2(){
     var queries_num = document.getElementById('queries_num').value;
     /*
     var keyvals = {"action":"insert","queries_num":queries_num}; 
@@ -241,6 +241,22 @@ function insertOrders(){
     ordersRequest.send("action=insert?queries_num="+queries_num); 
     //ordersRequest.send(); 
     
+}
+function insertOrders() {
+        var queries_num = document.getElementById('queries_num').value; 
+	var request = null;
+	try{
+		request = new XMLHttpRequest();
+	}catch(execpion){}
+	request.onreadystatechange = function(){
+		if(request.readyState == XMLHttpRequest.DONE){
+            //			updateTable(request.responseText);
+		}
+	}
+        console.log("hi"); 
+	request.open("POST", "analyticsOrder.jsp", true);
+        request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        request.send("submit=insert?queries_num="+queries_num); 
 }
 function refreshData(category, maxOrderId) {
   console.log(maxOrderId);
