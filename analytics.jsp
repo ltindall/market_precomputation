@@ -201,14 +201,26 @@
     out.print("<p>Query time: "+((double)(endTime - startTime))/1000+" seconds</p>");
     out.print("<p>JSP load time: "+((double)(endJsp - startJsp))/1000+" seconds</p>");
 %>
-<form action="analytics.jsp" method="POST">
+<!--<form action="analytics.jsp" method="POST">-->
 	<label># of queries to insert</label>
-	<input type="number" name="queries_num">
-	<input class="btn btn-primary"  type="submit" name="submit" value="insert"/>
-</form>
+	<input type="number" name="queries_num" id="queries_num">
+	<button class="btn btn-primary"  onclick='insertOrders()'>Insert </button>
+<!--</form>-->
 	<button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
 </body>
 <script type="text/javascript">
+function insertOrders(){
+    var queries_num = document.getElementById('queries_num').value;
+    var ordersRequest = null; 
+    try{
+        ordersRequest = new XMLHttpRequest(); 
+    }
+    catch(exception){}
+    ordersRequest.open("POST", "orders.jsp", true); 
+    ordersRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded"); 
+    ordersRequest.send("action=insert?queries_num="+queries_num); 
+
+}
 function refreshData(category, maxOrderId) {
   console.log(maxOrderId);
 	var request = null;
