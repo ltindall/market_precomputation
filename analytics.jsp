@@ -60,14 +60,13 @@
             "k.prodid, k.prodname, k.totalprod, COALESCE(SUM(o.price * o.quantity),0) AS spent FROM " +
             	"(SELECT p.id AS prodId, p.name AS prodName, p.totalprod, " +
             	"u.id AS stateid, u.name AS state, u.totalstate FROM " +
-            		"(SELECT * FROM ( SELECT p3.id, p3.name, COALESCE(SUM(o.price * o.quantity),0) AS " +
-            		"totalProd FROM Products p3 LEFT JOIN Orders o ON p3.id = o.product_id WHERE " +
-            		"(o.is_cart = false OR o.is_cart IS NULL)";
+            		"(SELECT * FROM ( SELECT product_id as id, product_name as name, MAX(total) AS " +
+            		"totalProd FROM producttotals ";
             if(category != 0){
-            	analyticsQuery += "AND category_id = "+category+" ";
+            	analyticsQuery += "WHERE category_id = "+category+" ";
             }
             analyticsQuery +=
-            "GROUP BY p3.id, p3.name ORDER BY totalprod DESC ) " +
+            "GROUP BY id, name ORDER BY totalprod DESC ) " +
             "p2 LIMIT 50) p, " +
             	"(SELECT * FROM " +
             		"( SELECT MAX(s.id) as id, s.name, COALESCE(SUM(o.price * o.quantity),0) " +
@@ -78,6 +77,7 @@
             	"k.prodid = o.product_id GROUP BY k.state, k.totalState, k.prodid, k.prodname, k.totalprod, " +
             	"k.stateid ORDER BY k.totalstate DESC, k.totalprod DESC;";
             if(!analyticsQuery.equals("")){
+            	System.err.println(analyticsQuery);
             	startTime = System.currentTimeMillis();
                 rs = stmt.executeQuery(analyticsQuery);
                 endTime = System.currentTimeMillis();
