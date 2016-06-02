@@ -285,15 +285,15 @@ function updateTable(newData) {
   	columnIds[i] = columns[i].id;
   }
   //find all columns in current set not in latest top 50
-  var purpleColumns = []; 
+  var purpleColumns = [];
   purpleColumns = columnIds.filter(function(x) {
 	  var keys = Object.keys(topLevel);
 	  for(var i = 0; i < keys.length; ++i){
 	  	if(topLevel[keys[i]].prodId == x.substring(3)){
 			return false;
-		} 
+		}
 	  }
-	  return true; 
+	  return true;
   });
   var newColumns = Object.keys(topLevel).filter(function(x) { return columnIds.indexOf(x) < 0; });
   Object.keys(purpleColumns).forEach(function(key) {
@@ -314,12 +314,30 @@ function updateTable(newData) {
     if(redCell != null) {
       // console.log(key);
       redCell.style.color = "red";
-      redCell.innerHTML = Number(base.newOrders[key]).toFixed(2);
+      //redCell.innerHTML = Number(base.newOrders[key]).toFixed(2);
       //redCell.style.backgroundColor = "red";
-      //redCell.innerHTML = (parseInt(redCell.innerHTML) + parseInt(base.newOrders[key]));
+      redCell.innerHTML = (parseInt(redCell.innerHTML) + parseInt(base.newOrders[key]));
+
+      // updating each index column (leftmost and topmost)
+      // splitKey = key.split(",");
+      // var stateCell = document.getElementById(splitKey[0] + ",-1");
+      // var prodCell = document.getElementById("-1," + splitKey[1]);
+      //
+      // stateCell.style.color = "red";
+      // prodCell.style.color = "red";
+      //
+      // updateIndexCell(stateCell, parseFloat(base.newOrders[key]));
+      // updateIndexCell(prodCell, parseFloat(base.newOrders[key]));
     }
   }
 
+  function updateIndexCell(indexCell, updateVal) {
+    var str = indexCell.innerHTML;
+    var statePart = str.substring(0, str.indexOf("("));
+    var num = parseFloat(str.substring(str.indexOf("(") + 1, str.indexOf(")")));
+
+    indexCell.innerHTML = statePart + "(" + (num + updateVal).toFixed(2) + ")";
+  }
 
 	// var table = document.getElementById('resultTable');
 	// if(table){
