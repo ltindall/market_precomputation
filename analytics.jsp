@@ -278,11 +278,35 @@ function updateTable(newData) {
   var base = JSON.parse(newData);
   console.log(base);
   var redCell = null;
+  var topLevel = base.topProducts; //build JSON object
+  var columns = document.getElementsByClassName("columnHeader"); //get current columns
+  var columnIds = [];
+  for(var i = 0; i < columns.length; ++i){ //scrape column IDs off
+  	columnIds[i] = columns[i].id;
+  }
+  //find all columns in current set not in latest top 50
+  var purpleColumns = []; 
+  purpleColumns = columnIds.filter(function(x) { return Object.keys(topLevel).indexOf(x) > 0; });
+  var newColumns = Object.keys(topLevel).filter(function(x) { return columnIds.indexOf(x) < 0; });
+  Object.keys(purpleColumns).forEach(function(key) {
+	  var elements = document.querySelectorAll('[id$=\''+ purpleColumns[key].substring(3) + '\']');
+	  Object.keys(elements).forEach(function(key1) {
+	  		elements[key1].style.color = "purple";
+	  });
+  });
+  /*
+  for(var i = 0; i < purpleColumns.length; ++i){
+  	var elements = document.querySelectorAll('[id$=\''+ purpleColumns[i] + '\']');
+  	for(var j = 0; j < elements.length; ++j){
+  		elements[i].style.color = "purple";
+  	}
+  }*/
   for (var key in base.newOrders) {
     redCell = document.getElementById(key);
     if(redCell != null) {
       // console.log(key);
-      redCell.style.backgroundColor = "red";
+      redCell.style.color = "red";
+      redCell.innerHTML = Number(base.newOrders[key]).toFixed(2);
     }
   }
 

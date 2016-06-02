@@ -1,9 +1,9 @@
 CREATE OR REPLACE FUNCTION proc_insert_orders(queries INT, random INT) RETURNS void AS $$
 DECLARE
-   priceList INTEGER[];
+   priceList FLOAT[];
    productList INTEGER[];
    idx INT;
-   diff INT;
+   diff FLOAT;
    tables CURSOR FOR SELECT p.id, sum(o.price) as sum FROM orders o, products p WHERE o.product_id = p.id group by p.id order by sum desc limit random * 2 offset 100 - random;
 BEGIN
    idx := 0;
