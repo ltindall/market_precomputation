@@ -283,6 +283,7 @@ function updateTable(newData) {
     if(redCell != null) {
       // console.log(key);
       redCell.style.backgroundColor = "red";
+      redCell.innerHTML = (parseInt(redCell.innerHTML) + parseInt(base.newOrders[key]));
     }
   }
 

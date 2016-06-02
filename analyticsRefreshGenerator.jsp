@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*, javax.sql.*, javax.naming.*, org.json.*"%>
 <%
-        
+
 	Connection conn = null;
 	try {
 		Class.forName("org.postgresql.Driver");
