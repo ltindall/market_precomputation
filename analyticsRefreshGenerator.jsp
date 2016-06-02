@@ -76,10 +76,10 @@
             ResultSet.TYPE_SCROLL_INSENSITIVE
           );
 
-  String newOrdersQuery = "SELECT user_id AS userId, product_id AS prodId, SUM(quantity * price) AS spent " +
-                          "FROM orders " +
-                          "WHERE id > " + (maxOrderId - 10) + " " +
-                          "GROUP BY user_id, product_id;";
+  String newOrdersQuery = "SELECT u.state_id AS stateId, o.product_id AS prodId, SUM(o.quantity * o.price) AS spent " +
+                          "FROM orders o LEFT JOIN users u ON u.id = o.user_id " +
+                          "WHERE o.id > " + (maxOrderId - 500) + " " +
+                          "GROUP BY state_id, product_id;";
   newOrdersRS = newOrderStmt.executeQuery(newOrdersQuery);
 
   ResultSet top50rs = null;
@@ -103,7 +103,7 @@
   JSONObject newOrdersJson = new JSONObject();
   if(newOrdersRS != null) {
     while(newOrdersRS.next()) {
-      newOrdersJson.put(newOrdersRS.getInt("userId") + "," + newOrdersRS.getInt("prodId"), newOrdersRS.getDouble("spent"));
+      newOrdersJson.put(newOrdersRS.getInt("stateId") + "," + newOrdersRS.getInt("prodId"), newOrdersRS.getDouble("spent"));
     }
   }
 
