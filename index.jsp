@@ -9,6 +9,7 @@
 <title>CSE135 Project</title>
 </head>
 <%
+        //application.setAttribute("maxOrderId", 0); 
 	Connection conn = null;
 	try {
 		Class.forName("org.postgresql.Driver");

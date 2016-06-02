@@ -19,14 +19,19 @@
 		category = 0;
 	}
 
-  int maxOrderId;
-  try{
+        int maxOrderId;
+        try{
 		maxOrderId = Integer.parseInt(request.getParameter("maxOrderId"));
+                if(maxOrderId < (Integer)application.getAttribute("maxOrderId")){
+                    maxOrderId = (Integer)application.getAttribute("maxOrderId"); 
+                } 
+                application.setAttribute("maxOrderId", maxOrderId); 
+            
 	}catch(Exception e){
 		maxOrderId = 0;
 	}
 
-
+        //out.print(maxOrderId); 
         // out.print("running proceesing");
         //conn.setAutoCommit(false);
         ResultSet newPurchasesByProduct = null;
@@ -48,6 +53,7 @@
         while(newPurchasesByProduct.next()){
         
           
+       
             prodTot.setDouble(1,newPurchasesByProduct.getDouble("price"));
             prodTot.setInt(2,newPurchasesByProduct.getInt("product_id"));
             prodTot.executeUpdate();
@@ -83,7 +89,7 @@
         */
 
         //out.print("down here");
-  ResultSet newOrdersRS = null;
+        ResultSet newOrdersRS = null;
 	Statement newOrderStmt = conn.createStatement(
             ResultSet.TYPE_SCROLL_INSENSITIVE,
             ResultSet.TYPE_SCROLL_INSENSITIVE
@@ -91,7 +97,7 @@
 
   String newOrdersQuery = "SELECT u.state_id AS stateId, o.product_id AS prodId, SUM(o.quantity * o.price) AS spent " +
                           "FROM orders o LEFT JOIN users u ON u.id = o.user_id " +
-                          "WHERE o.id > " + (maxOrderId - 500) + " " +
+                          "WHERE o.id > " + maxOrderId + " " +
                           "GROUP BY state_id, product_id;";
   newOrdersRS = newOrderStmt.executeQuery(newOrdersQuery);
 
@@ -114,8 +120,10 @@
 
   // populate json opjects with results
   JSONObject newOrdersJson = new JSONObject();
+
   if(newOrdersRS != null) {
     while(newOrdersRS.next()) {
+     
       newOrdersJson.put(newOrdersRS.getInt("stateId") + "," + newOrdersRS.getInt("prodId"), newOrdersRS.getDouble("spent"));
     }
   }

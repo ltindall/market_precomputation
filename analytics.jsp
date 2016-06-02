@@ -258,8 +258,15 @@ function insertOrders() {
         request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         request.send("submit=insert&queries_num="+queries_num);
 }
+
+var newMaxOrderId = 0;  
 function refreshData(category, maxOrderId) {
-  console.log("max order id = " + maxOrderId);
+        if(newMaxOrderId > maxOrderId){
+            console.log("max reset"); 
+            maxOrderId = newMaxOrderId; 
+        } 
+        console.log("max should be = "+newMaxOrderId); 
+        console.log("max order id = " + maxOrderId);
 	var request = null;
 	try{
 		request = new XMLHttpRequest();
@@ -270,7 +277,7 @@ function refreshData(category, maxOrderId) {
 		}
 	}
 	request.open("POST", "analyticsRefreshGenerator.jsp", true);
-  request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	request.send("category=" + category + "&maxOrderId=" + maxOrderId);
 }
 
@@ -278,6 +285,7 @@ function updateTable(newData) {
   var base = JSON.parse(newData);
   console.log(base);
   var redCell = null;
+  newMaxOrderId = 0+ base.newMaxOrderId;  
   var topLevel = base.topProducts; //build JSON object
   var columns = document.getElementsByClassName("columnHeader"); //get current columns
   var columnIds = [];
