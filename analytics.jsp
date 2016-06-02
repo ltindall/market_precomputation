@@ -275,7 +275,18 @@ function refreshData(category, maxOrderId) {
 }
 
 function updateTable(newData) {
-  console.log(JSON.parse(newData));
+  var base = JSON.parse(newData);
+  console.log(base);
+  var redCell = null;
+  for (var key in base.newOrders) {
+    redCell = document.getElementById(key);
+    if(redCell != null) {
+      // console.log(key);
+      redCell.style.backgroundColor = "red";
+    }
+  }
+
+
 	// var table = document.getElementById('resultTable');
 	// if(table){
 	// 	try{
