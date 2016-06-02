@@ -314,31 +314,34 @@ function updateTable(newData) {
   Object.keys(purpleColumns).forEach(function(key) {
 	  var elements = document.querySelectorAll('[id$=\''+ purpleColumns[key].substring(3) + '\']');
 	  Object.keys(elements).forEach(function(key1) {
+		  //console.log("elements", elements[key1].id);
 	  		elements[key1].style.color = "purple";
 	  });
   });
+  
   //update column headers to be red or black.
-  /*
-  document.getElementById("resultTable").style.color= "black";
   Object.keys(topLevel).forEach(function(key) {
 	  var element = document.getElementById("-1,"+topLevel[key].prodId);
-          console.log(topLevel[key].prodId); 
-	  var number = element.innerHTML.substring(element.innerHTML.indexOf("(")+1, element.innerHTML.length-1);
-	  if(number != topLevel[key].totalProd){
-		  element.innerHTML = element.innerHTML.replace(number, Number(topLevel[key].totalProd).toFixed(2));
-		  element.style.color="red";
-	  }else if(element.style.color != "purple"){
-		  element.style.color="black";
+	  if(element != null){
+		  var number = element.innerHTML.substring(element.innerHTML.indexOf("(")+1, element.innerHTML.length-1);
+		  if(number != Number(topLevel[key].totalProd).toFixed(2)){
+			  element.innerHTML = element.innerHTML.replace(number, Number(topLevel[key].totalProd).toFixed(2));
+			  element.style.color="red";
+		  }else if(element.style.color != "purple"){
+			  element.style.color="black";
+		  }
 	  }
   });
-    */
+  
   //update all red cells NOT COLUMN HEADERS
   for(i = 0; i< rowIds.length; ++i ){
     document.getElementById(rowIds[i]).style.color = "black"; 
     for(j = 0; j < columnIds.length; ++j ){
         if(!((rowIds[i][0])+","+(columnIds[j][1]) in base.newOrders)){
-            console.log("turned cell black"); 
-            document.getElementById((rowIds[i].substring(0,rowIds[i].length-3))+","+(columnIds[j].substring(3))).style.color = "black"; 
+            var currentElement = document.getElementById((rowIds[i].substring(0,rowIds[i].length-3))+","+(columnIds[j].substring(3))); 
+            if(currentElement.style.color == "red"){
+            	currentElement.style.color = "black";
+            }
         }
     }
   }
@@ -356,10 +359,10 @@ function updateTable(newData) {
     } 
     if(redCell != null) {
       redCell.style.color = "red";
-      var newVal = Number(base.newOrders[key]).toFixed(2); 
-      redCell.innerHTML = newVal; 
+      //var newVal = Number(base.newOrders[key]).toFixed(2); 
+      //redCell.innerHTML = newVal; 
       //redCell.style.backgroundColor = "red";
-      //redCell.innerHTML = (parseInt(redCell.innerHTML) + parseInt(base.newOrders[key]));
+      redCell.innerHTML = Number(parseInt(redCell.innerHTML) + parseInt(base.newOrders[key])).toFixed(2);
 
       // updating each index column (leftmost and topmost)
       // splitKey = key.split(",");
