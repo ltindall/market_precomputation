@@ -166,7 +166,7 @@
     	        if(currId == -1) {
     	          currId = newId;
     	          prodCount = 1;%>
-    	          <td id="<%= rs.getInt("userid") + ",-1"%>" style="font-weight: bold"><%=rs.getString("username") %> (<%= df.format(rs.getDouble("totalUser")) %>)</td>
+    	          <td id="<%= rs.getInt("userid") + ",-1"%>" class="rowHeader" style="font-weight: bold"><%=rs.getString("username") %> (<%= df.format(rs.getDouble("totalUser")) %>)</td>
     	          <td id="<%= rs.getInt("userid") + "," + rs.getInt("prodid")%>"><%= df.format(rs.getDouble("spent")) %></td>
     	        <% }
     	        else if(currId != newId) { //new user found, end old row make new one
@@ -178,7 +178,7 @@
     	          prodCount = 1;%>
     	        </tr>
     	        <tr>
-    	          <td id="<%= rs.getInt("userid") + ",-1"%>" style="font-weight: bold"><%=rs.getString("username") %> (<%= df.format(rs.getDouble("totalUser")) %>)</td>
+    	          <td id="<%= rs.getInt("userid") + ",-1"%>" class="rowHeader" style="font-weight: bold"><%=rs.getString("username") %> (<%= df.format(rs.getDouble("totalUser")) %>)</td>
     	          <td id="<%= rs.getInt("userid") + "," + rs.getInt("prodid")%>"><%= df.format(rs.getDouble("spent")) %></td>
     	        <% } else { /* just another column */
     	            if(prodCount >= 50){
@@ -207,6 +207,7 @@
 	<button class="btn btn-primary"  onclick='insertOrders()'>Insert </button>
 <!--</form>-->
 	<button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
+        <p id="testing"></p> 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 </body>
@@ -292,6 +293,13 @@ function updateTable(newData) {
   for(var i = 0; i < columns.length; ++i){ //scrape column IDs off
   	columnIds[i] = columns[i].id;
   }
+  var rows = document.getElementsByClassName("rowHeader"); 
+  var rowIds = []; 
+  for(var i = 0; i < rows.length; ++i){
+      rowIds[i] = rows[i].id; 
+  }
+  console.log(rowIds[0][0]);
+  console.log(columnIds[0][0]); 
   //find all columns in current set not in latest top 50
   var purpleColumns = [];
   purpleColumns = columnIds.filter(function(x) {
@@ -312,6 +320,7 @@ function updateTable(newData) {
 	  });
   });
   //update column headers to be red or black.
+  /*
   Object.keys(topLevel).forEach(function(key) {
 	  var element = document.getElementById("-1,"+topLevel[key].prodId);
 	  var number = element.innerHTML.substring(element.innerHTML.indexOf("(")+1, element.innerHTML.length-1);
@@ -322,14 +331,29 @@ function updateTable(newData) {
 		  element.style.color="black";
 	  }
   });
-  
+  */
+  document.getElementById("resultTable").style.color= "black"; 
   //update all red cells
+
+  for(i = 0; i< rowIds.length; ++i ){
+    for(j = 0; j < columnIds.length; ++j ){
+        if(!((rowIds[i][0])+","+(columnIds[j][1]) in base.newOrders)){
+            document.getElementById((rowIds[i].substring(0,rowIds[i].length-3))+","+(columnIds[j].substring(3))).style.color = "black"; 
+        }
+    }
+  }
   for (var key in base.newOrders) {
+  console.log(key);
+  //console.log(document.getElementById("24,811"));  
     redCell = document.getElementById(key);
+    console.log("start"); 
     if(redCell != null) {
-      // console.log(key);
+      //console.log(key);
       redCell.style.color = "red";
-      redCell.innerHTML = Number(base.newOrders[key]).toFixed(2);
+      console.log("innerhtml"); 
+      console.log(Number(redCell.innerHTML)); 
+      var newVal = parseFloat(Number(redCell.innerHTML))+parseFloat(Number(base.newOrders[key]).toFixed(2)); 
+      redCell.innerHTML = newVal; 
       //redCell.style.backgroundColor = "red";
       //redCell.innerHTML = (parseInt(redCell.innerHTML) + parseInt(base.newOrders[key]));
 

@@ -96,7 +96,7 @@
           );
 
   String newOrdersQuery = "SELECT u.state_id AS stateId, o.product_id AS prodId, SUM(o.quantity * o.price) AS spent " +
-                          "FROM orders o LEFT JOIN users u ON u.id = o.user_id " +
+                          "FROM orders o JOIN users u ON u.id = o.user_id " +
                           "WHERE o.id > " + maxOrderId + " " +
                           "GROUP BY state_id, product_id;";
   newOrdersRS = newOrderStmt.executeQuery(newOrdersQuery);
