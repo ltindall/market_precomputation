@@ -214,36 +214,36 @@
 function insertOrders2(){
     var queries_num = document.getElementById('queries_num').value;
     /*
-    var keyvals = {"action":"insert","queries_num":queries_num}; 
+    var keyvals = {"action":"insert","queries_num":queries_num};
     $.ajax({
-        type: "POST", 
-        url: "analyticsOrder.jsp", 
-        data: keyvals, 
-        dataType: "text", 
+        type: "POST",
+        url: "analyticsOrder.jsp",
+        data: keyvals,
+        dataType: "text",
         success: function(result){
-            alert("success"); 
-        } 
-    }); 
+            alert("success");
+        }
+    });
     */
-    var ordersRequest = null; 
+    var ordersRequest = null;
     try{
-        ordersRequest = new XMLHttpRequest(); 
+        ordersRequest = new XMLHttpRequest();
     }
     catch(exception){}
     ordersRequest.onreadystatechange = function(){
 		if(ordersRequest.readyState == XMLHttpRequest.DONE){
-	
+
 		}
     }
-    ordersRequest.open("POST", "analyticsOrder.jsp", true); 
-    //ordersRequest.setRequestHeader("Content-type", "text/html"); 
-    ordersRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded"); 
-    ordersRequest.send("action=insert?queries_num="+queries_num); 
-    //ordersRequest.send(); 
-    
+    ordersRequest.open("POST", "analyticsOrder.jsp", true);
+    //ordersRequest.setRequestHeader("Content-type", "text/html");
+    ordersRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    ordersRequest.send("action=insert?queries_num="+queries_num);
+    //ordersRequest.send();
+
 }
 function insertOrders() {
-        var queries_num = document.getElementById('queries_num').value; 
+        var queries_num = document.getElementById('queries_num').value;
 	var request = null;
 	try{
 		request = new XMLHttpRequest();
@@ -253,13 +253,13 @@ function insertOrders() {
             //			updateTable(request.responseText);
 		}
 	}
-        console.log("hi"); 
+        console.log("hi");
 	request.open("POST", "analyticsOrder.jsp", true);
         request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        request.send("submit=insert?queries_num="+queries_num); 
+        request.send("submit=insert&queries_num="+queries_num);
 }
 function refreshData(category, maxOrderId) {
-  console.log(maxOrderId);
+  console.log("max order id = " + maxOrderId);
 	var request = null;
 	try{
 		request = new XMLHttpRequest();

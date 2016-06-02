@@ -1,11 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page import="java.sql.*, javax.sql.*, javax.naming.*, org.json.*"%>
-<%@ page import="java.sql.*, javax.sql.*, javax.naming.*, java.util.*"%>
+
+<%@ page import="java.sql.*, javax.sql.*, javax.naming.*, java.util.*, org.json.*"%>
 
 <%
 out.print("we made it"); 
 
+       
         Connection conn = null;
         try {
                 Class.forName("org.postgresql.Driver");
