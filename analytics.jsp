@@ -30,7 +30,7 @@
 			if (queries_num < random_num) random_num = queries_num;
 			Statement stmt = conn.createStatement();
 			//replaced random_num with 100 as it wasn't working
-			stmt.executeQuery("SELECT proc_insert_orders(" + queries_num + ", 100)");
+			stmt.executeQuery("SELECT proc_insert_orders(" + queries_num + ", "+random_num+")");
 			out.println("<script>alert('" + queries_num + " orders are inserted!');</script>");
 		}
 		else if (action != null && action.equals("refresh")) {
