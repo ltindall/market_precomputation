@@ -24,6 +24,7 @@
 		maxOrderId = 0;
 	}
 
+        conn.setAutoCommit(false); 
         ResultSet newPurchases = null; 
         Statement purchasesStmt = conn.createStatement(
             ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -31,6 +32,15 @@
           );
         newPurchases = purchasesStmt.executeQuery("SELECT user_id, product_id, price  FROM orders WHERE id > "+maxOrderId+" GROUP BY user_id,product_id,price"); 
 
+        PreparedStatement prodTot = null; 
+        prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where productId = ?"); 
+
+        while(newPurchases.next()){
+            prodTot.setDouble(1,newPurchases.getDouble("price")); 
+            prodTot.setInt(2,newPurchases.getInt("product_id")); 
+            prodTot.executeUpdate(); 
+        }
+        conn.commit(); 
         /* 
         sql to fill precompute tables with initial data
         insert into stateTotals (stateId, total)
