@@ -20,10 +20,10 @@
 	}
 
         int maxOrderId;
-        int maxOrderIdOriginal; 
+        int maxOrderIdOriginal = 0; 
         try{
 		maxOrderId = Integer.parseInt(request.getParameter("maxOrderId"));
-                maxOrderIdOriginal = Integer.parseInt(request.getParameter("maxOrderId"); 
+                maxOrderIdOriginal = Integer.parseInt(request.getParameter("maxOrderId")); 
                 if(maxOrderId < (Integer)application.getAttribute("maxOrderId")){
                     maxOrderId = (Integer)application.getAttribute("maxOrderId"); 
                 } 
@@ -52,8 +52,9 @@
         PreparedStatement prodTot = null;
         prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where productId = ?");
 
-        /*while(newPurchasesByProduct.next()){
+       /* while(newPurchasesByProduct.next()){
         
+          
        
             prodTot.setDouble(1,newPurchasesByProduct.getDouble("price"));
             prodTot.setInt(2,newPurchasesByProduct.getInt("product_id"));
