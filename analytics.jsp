@@ -207,19 +207,40 @@
 	<button class="btn btn-primary"  onclick='insertOrders()'>Insert </button>
 <!--</form>-->
 	<button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
 </body>
 <script type="text/javascript">
 function insertOrders(){
     var queries_num = document.getElementById('queries_num').value;
+    /*
+    var keyvals = {"action":"insert","queries_num":queries_num}; 
+    $.ajax({
+        type: "POST", 
+        url: "analyticsOrder.jsp", 
+        data: keyvals, 
+        dataType: "text", 
+        success: function(result){
+            alert("success"); 
+        } 
+    }); 
+    */
     var ordersRequest = null; 
     try{
         ordersRequest = new XMLHttpRequest(); 
     }
     catch(exception){}
-    ordersRequest.open("POST", "orders.jsp", true); 
+    ordersRequest.onreadystatechange = function(){
+		if(ordersRequest.readyState == XMLHttpRequest.DONE){
+	
+		}
+    }
+    ordersRequest.open("POST", "analyticsOrder.jsp", true); 
+    //ordersRequest.setRequestHeader("Content-type", "text/html"); 
     ordersRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded"); 
     ordersRequest.send("action=insert?queries_num="+queries_num); 
-
+    //ordersRequest.send(); 
+    
 }
 function refreshData(category, maxOrderId) {
   console.log(maxOrderId);
