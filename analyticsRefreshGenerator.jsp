@@ -2,8 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*, javax.sql.*, javax.naming.*, org.json.*"%>
 <%
-       
-        //out.print("hello"); 
+
 	Connection conn = null;
 	try {
 		Class.forName("org.postgresql.Driver");
@@ -46,14 +45,6 @@
         PreparedStatement prodTot = null;
         prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where productId = ?");
 
-        Statement testStmt = conn.createStatement(
-            ResultSet.TYPE_SCROLL_INSENSITIVE,
-            ResultSet.TYPE_SCROLL_INSENSITIVE
-          );
-        newPurchasesByProduct.next(); 
-        testStmt.executeUpdate("UPDATE productTotals SET total = total + "+newPurchasesByProduct.getDouble("price")+" where productId = "+newPurchasesByProduct.getInt("product_id"));
-        
-        //out.print("here"); 
         while(newPurchasesByProduct.next()){
         
           
@@ -63,13 +54,13 @@
            
         }
         //conn.commit();
-       // out.print("committed"); 
+      
         newPurchasesByProduct.beforeFirst();
 
 
         PreparedStatement stateTot = null;
         stateTot = conn.prepareStatement("UPDATE statetotals set total = total + ? where stateId = ?");
-        //out.print("there"); 
+        //out.print("there");
         while(newPurchasesByState.next()){
             stateTot.setDouble(1,newPurchasesByState.getDouble("price"));
             stateTot.setInt(2, newPurchasesByState.getInt("state_id"));
@@ -91,7 +82,7 @@
         group by o.product_id
         */
 
-        //out.print("down here"); 
+        //out.print("down here");
   ResultSet newOrdersRS = null;
 	Statement newOrderStmt = conn.createStatement(
             ResultSet.TYPE_SCROLL_INSENSITIVE,
