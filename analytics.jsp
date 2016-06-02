@@ -320,12 +320,11 @@ function updateTable(newData) {
   });
   
   //update column headers to be red or black.
-  //document.getElementById("resultTable").style.color= "black";
   Object.keys(topLevel).forEach(function(key) {
 	  var element = document.getElementById("-1,"+topLevel[key].prodId);
 	  if(element != null){
 		  var number = element.innerHTML.substring(element.innerHTML.indexOf("(")+1, element.innerHTML.length-1);
-		  if(number != topLevel[key].totalProd){
+		  if(number != Number(topLevel[key].totalProd).toFixed(2)){
 			  element.innerHTML = element.innerHTML.replace(number, Number(topLevel[key].totalProd).toFixed(2));
 			  element.style.color="red";
 		  }else if(element.style.color != "purple"){
