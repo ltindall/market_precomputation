@@ -286,7 +286,15 @@ function updateTable(newData) {
   }
   //find all columns in current set not in latest top 50
   var purpleColumns = []; 
-  purpleColumns = columnIds.filter(function(x) { return Object.keys(topLevel).indexOf(x) > 0; });
+  purpleColumns = columnIds.filter(function(x) {
+	  var keys = Object.keys(topLevel);
+	  for(var i = 0; i < keys.length; ++i){
+	  	if(topLevel[keys[i]].prodId == x.substring(3)){
+			return false;
+		} 
+	  }
+	  return true; 
+  });
   var newColumns = Object.keys(topLevel).filter(function(x) { return columnIds.indexOf(x) < 0; });
   Object.keys(purpleColumns).forEach(function(key) {
 	  var elements = document.querySelectorAll('[id$=\''+ purpleColumns[key].substring(3) + '\']');

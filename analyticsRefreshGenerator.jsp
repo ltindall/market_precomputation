@@ -126,6 +126,7 @@
     while(top50rs.next()) {
       top50holder = new JSONObject();
       top50holder.put("prodName", top50rs.getString("prodName"));
+      top50holder.put("prodId", top50rs.getString("prodId"));
       top50holder.put("totalProd", top50rs.getDouble("totalProd"));
       top50json.put("" + top50rs.getInt("prodId"), top50holder);
     }
