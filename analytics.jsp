@@ -201,16 +201,65 @@
     out.print("<p>Query time: "+((double)(endTime - startTime))/1000+" seconds</p>");
     out.print("<p>JSP load time: "+((double)(endJsp - startJsp))/1000+" seconds</p>");
 %>
-<form action="analytics.jsp" method="POST">
+<!--<form action="analytics.jsp" method="POST">-->
 	<label># of queries to insert</label>
-	<input type="number" name="queries_num">
-	<input class="btn btn-primary"  type="submit" name="submit" value="insert"/>
-</form>
+	<input type="number" name="queries_num" id="queries_num">
+	<button class="btn btn-primary"  onclick='insertOrders()'>Insert </button>
+<!--</form>-->
 	<button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
 </body>
 <script type="text/javascript">
+function insertOrders2(){
+    var queries_num = document.getElementById('queries_num').value;
+    /*
+    var keyvals = {"action":"insert","queries_num":queries_num};
+    $.ajax({
+        type: "POST",
+        url: "analyticsOrder.jsp",
+        data: keyvals,
+        dataType: "text",
+        success: function(result){
+            alert("success");
+        }
+    });
+    */
+    var ordersRequest = null;
+    try{
+        ordersRequest = new XMLHttpRequest();
+    }
+    catch(exception){}
+    ordersRequest.onreadystatechange = function(){
+		if(ordersRequest.readyState == XMLHttpRequest.DONE){
+
+		}
+    }
+    ordersRequest.open("POST", "analyticsOrder.jsp", true);
+    //ordersRequest.setRequestHeader("Content-type", "text/html");
+    ordersRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    ordersRequest.send("action=insert?queries_num="+queries_num);
+    //ordersRequest.send();
+
+}
+function insertOrders() {
+        var queries_num = document.getElementById('queries_num').value;
+	var request = null;
+	try{
+		request = new XMLHttpRequest();
+	}catch(execpion){}
+	request.onreadystatechange = function(){
+		if(request.readyState == XMLHttpRequest.DONE){
+            //			updateTable(request.responseText);
+		}
+	}
+        console.log("hi");
+	request.open("POST", "analyticsOrder.jsp", true);
+        request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        request.send("submit=insert&queries_num="+queries_num);
+}
 function refreshData(category, maxOrderId) {
-  console.log(maxOrderId);
+  console.log("max order id = " + maxOrderId);
 	var request = null;
 	try{
 		request = new XMLHttpRequest();
@@ -226,7 +275,7 @@ function refreshData(category, maxOrderId) {
 }
 
 function updateTable(newData) {
-   var base = JSON.parse(newData);
+  var base = JSON.parse(newData);
   console.log(base);
   var redCell = null;
   for (var key in base.newOrders) {
@@ -236,7 +285,6 @@ function updateTable(newData) {
       redCell.style.backgroundColor = "red";
     }
   }
-
 
 
 	// var table = document.getElementById('resultTable');
