@@ -29,7 +29,7 @@
 
 
         // out.print("running proceesing");
-        conn.setAutoCommit(false);
+        //conn.setAutoCommit(false);
         ResultSet newPurchasesByProduct = null;
         ResultSet newPurchasesByState  = null;
         Statement purchasesStmt = conn.createStatement(
@@ -46,15 +46,26 @@
         PreparedStatement prodTot = null;
         prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where productId = ?");
 
+        Statement testStmt = conn.createStatement(
+            ResultSet.TYPE_SCROLL_INSENSITIVE,
+            ResultSet.TYPE_SCROLL_INSENSITIVE
+          );
+        newPurchasesByProduct.next(); 
+        testStmt.executeUpdate("UPDATE productTotals SET total = total + "+newPurchasesByProduct.getDouble("price")+" where productId = "+newPurchasesByProduct.getInt("product_id"));
+        
         //out.print("here"); 
         while(newPurchasesByProduct.next()){
+        
+          
             prodTot.setDouble(1,newPurchasesByProduct.getDouble("price"));
             prodTot.setInt(2,newPurchasesByProduct.getInt("product_id"));
             prodTot.executeUpdate();
+           
         }
-        conn.commit();
-
+        //conn.commit();
+       // out.print("committed"); 
         newPurchasesByProduct.beforeFirst();
+
 
         PreparedStatement stateTot = null;
         stateTot = conn.prepareStatement("UPDATE statetotals set total = total + ? where stateId = ?");
@@ -64,8 +75,10 @@
             stateTot.setInt(2, newPurchasesByState.getInt("state_id"));
             stateTot.executeUpdate();
         }
-        conn.commit();
+        //conn.commit();
         conn.setAutoCommit(true);
+  
+
         /*
         sql to fill precompute tables with initial data
         insert into stateTotals (stateId, total)
