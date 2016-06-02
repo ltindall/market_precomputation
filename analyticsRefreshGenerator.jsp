@@ -23,7 +23,7 @@
         int maxOrderIdOriginal; 
         try{
 		maxOrderId = Integer.parseInt(request.getParameter("maxOrderId"));
-                maxOrderIdOriginal = Integer.parseInt(request.getParameter("maxOrderId"); 
+                maxOrderIdOriginal = Integer.parseInt(request.getParameter("maxOrderId")); 
                 if(maxOrderId < (Integer)application.getAttribute("maxOrderId")){
                     maxOrderId = (Integer)application.getAttribute("maxOrderId"); 
                 } 
@@ -31,6 +31,7 @@
             
 	}catch(Exception e){
 		maxOrderId = 0;
+                maxOrderIdOriginal = 0; 
 	}
 
         //out.print(maxOrderId); 
@@ -50,7 +51,7 @@
 
         newPurchasesByState = purchasesStmt2.executeQuery("SELECT u.state_id, o.price  FROM orders o, users u  WHERE o.user_id = u.id and o.id > "+maxOrderId+" GROUP BY u.state_id, o.price");
         PreparedStatement prodTot = null;
-        prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where productId = ?");
+        prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where product_id = ?");
 
         while(newPurchasesByProduct.next()){
         
