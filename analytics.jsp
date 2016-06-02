@@ -210,6 +210,7 @@
 </body>
 <script type="text/javascript">
 function refreshData(category, maxOrderId) {
+  console.log(maxOrderId);
 	var request = null;
 	try{
 		request = new XMLHttpRequest();
@@ -220,36 +221,38 @@ function refreshData(category, maxOrderId) {
 		}
 	}
 	request.open("POST", "analyticsRefreshGenerator.jsp", true);
+  request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	request.send("category=" + category + "&maxOrderId=" + maxOrderId);
 }
 
-function updateTable(newData){
-	var table = document.getElementById('resultTable');
-	if(table){
-		try{
-			var topLevel = JSON.parse(newData); //build JSON object
-			var columns = document.getElementsByClassName("columnHeader"); //get current columns
-			var columnIds;
-			for(var i = 0; i < columns.length; ++i){ //scrape column IDs off
-				columnIds[i] = columns[i].id;
-			}
-			//find all columns in current set not in latest top 50
-			var purpleColumns = columnIds.filter(function(x) { return Object.keys(topLevel).indexOf(x) < 0; });
-			var newColumns = Object.keys(topLevel).filter(function(x) { return columnIds.indexOf(x) < 0; });
-			for(var i = 0; i < purpleColumns.length; ++i){
-				var elements = document.querySelectorAll('[id$=,'+ purpleColumns[i] + ']');
-				for(var j = 0; j < elements.length; ++j){
-					elements[i].style.color = "purple";
-				}
-			}
-			Object.keys(topLevel).forEach(function(key) {
-			    console.log(key, topLevel[key]);
-			});
-			window.alert("success");
-		}catch(exception){
-			console.log(newData);
-		}
-	}
+function updateTable(newData) {
+  console.log(JSON.parse(newData));
+	// var table = document.getElementById('resultTable');
+	// if(table){
+	// 	try{
+	// 		var topLevel = JSON.parse(newData); //build JSON object
+	// 		var columns = document.getElementsByClassName("columnHeader"); //get current columns
+	// 		var columnIds;
+	// 		for(var i = 0; i < columns.length; ++i){ //scrape column IDs off
+	// 			columnIds[i] = columns[i].id;
+	// 		}
+	// 		//find all columns in current set not in latest top 50
+	// 		var purpleColumns = columnIds.filter(function(x) { return Object.keys(topLevel).indexOf(x) < 0; });
+	// 		var newColumns = Object.keys(topLevel).filter(function(x) { return columnIds.indexOf(x) < 0; });
+	// 		for(var i = 0; i < purpleColumns.length; ++i){
+	// 			var elements = document.querySelectorAll('[id$=,'+ purpleColumns[i] + ']');
+	// 			for(var j = 0; j < elements.length; ++j){
+	// 				elements[i].style.color = "purple";
+	// 			}
+	// 		}
+	// 		Object.keys(topLevel).forEach(function(key) {
+	// 		    console.log(key, topLevel[key]);
+	// 		});
+	// 		window.alert("success");
+	// 	}catch(exception){
+	// 		console.log(newData);
+	// 	}
+	// }
 }
 </script>
 </html>
