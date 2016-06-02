@@ -318,9 +318,11 @@ function updateTable(newData) {
 	  });
   });
   //update column headers to be red or black.
+  /*
   document.getElementById("resultTable").style.color= "black";
   Object.keys(topLevel).forEach(function(key) {
 	  var element = document.getElementById("-1,"+topLevel[key].prodId);
+          console.log(topLevel[key].prodId); 
 	  var number = element.innerHTML.substring(element.innerHTML.indexOf("(")+1, element.innerHTML.length-1);
 	  if(number != topLevel[key].totalProd){
 		  element.innerHTML = element.innerHTML.replace(number, Number(topLevel[key].totalProd).toFixed(2));
@@ -329,16 +331,29 @@ function updateTable(newData) {
 		  element.style.color="black";
 	  }
   });
+    */
   //update all red cells NOT COLUMN HEADERS
   for(i = 0; i< rowIds.length; ++i ){
+    document.getElementById(rowIds[i]).style.color = "black"; 
     for(j = 0; j < columnIds.length; ++j ){
         if(!((rowIds[i][0])+","+(columnIds[j][1]) in base.newOrders)){
+            console.log("turned cell black"); 
             document.getElementById((rowIds[i].substring(0,rowIds[i].length-3))+","+(columnIds[j].substring(3))).style.color = "black"; 
         }
     }
   }
+  var rowsToUpdate = []; 
   for (var key in base.newOrders) {
-    redCell = document.getElementById(key);
+    console.log(key.substring(0,key.indexOf(",")));
+    console.log(key);
+    rowsToUpdate.push(key.substring(0,key.indexOf(","))+",-1"); 
+
+    rowHeader = document.getElementById(key.substring(0,key.indexOf(","))+",-1"); 
+    if(rowHeader != null){
+        rowHeader.innerHTML = rowHeader.innerHTML.substring(0,3)+ " ("+ (parseFloat(rowHeader.innerHTML.substring(4,rowHeader.innerHTML.length -1)) + parseFloat(base.newOrders[key])) +")"; 
+        rowHeader.style.color = "red"; 
+        redCell = document.getElementById(key);
+    } 
     if(redCell != null) {
       redCell.style.color = "red";
       var newVal = Number(base.newOrders[key]).toFixed(2); 
@@ -358,6 +373,15 @@ function updateTable(newData) {
       // updateIndexCell(prodCell, parseFloat(base.newOrders[key]));
     }
   }
+
+  /*
+  for(i = 0; i< rowIds.length; ++i ){
+    if(rowsToUpdate.indexOf(rowIds[i]) == -1){
+        console.log("turned row header black"); 
+        document.getElementById(rowIds[i]).style.color = "black"; 
+    }
+  }
+  */
 
   function updateIndexCell(indexCell, updateVal) {
     var str = indexCell.innerHTML;
