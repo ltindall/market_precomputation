@@ -2,6 +2,7 @@
     pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*, javax.sql.*, javax.naming.*, org.json.*"%>
 <%
+        // out.print("hello");
 	Connection conn = null;
 	try {
 		Class.forName("org.postgresql.Driver");
@@ -25,10 +26,14 @@
 		maxOrderId = 0;
 	}
 
+
+        // out.print("running proceesing");
         conn.setAutoCommit(false);
         ResultSet newPurchases = null;
-        Statement purchasesStmt = conn.createStatement();
-
+        Statement purchasesStmt = conn.createStatement(
+            ResultSet.TYPE_SCROLL_INSENSITIVE,
+            ResultSet.TYPE_SCROLL_INSENSITIVE
+          );
         newPurchases = purchasesStmt.executeQuery("SELECT u.state_id, o.product_id, o.price  FROM orders o, users u  WHERE o.user_id = u.id and o.id > "+maxOrderId+" GROUP BY u.state_id, o.product_id, o.price");
 
         PreparedStatement prodTot = null;
@@ -44,7 +49,7 @@
         newPurchases.beforeFirst();
 
         PreparedStatement stateTot = null;
-        stateTot = conn.prepareStatment("UPDATE statetotals set total = total + ? where stateId = ?");
+        stateTot = conn.prepareStatement("UPDATE statetotals set total = total + ? where stateId = ?");
 
         while(newPurchases.next()){
             stateTot.setDouble(1,newPurchases.getDouble("price"));
