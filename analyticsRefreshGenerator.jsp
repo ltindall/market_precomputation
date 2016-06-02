@@ -20,8 +20,10 @@
 	}
 
         int maxOrderId;
+        int maxOrderIdOriginal; 
         try{
 		maxOrderId = Integer.parseInt(request.getParameter("maxOrderId"));
+                maxOrderIdOriginal = Integer.parseInt(request.getParameter("maxOrderId"); 
                 if(maxOrderId < (Integer)application.getAttribute("maxOrderId")){
                     maxOrderId = (Integer)application.getAttribute("maxOrderId"); 
                 } 
@@ -97,7 +99,7 @@
 
   String newOrdersQuery = "SELECT u.state_id AS stateId, o.product_id AS prodId, SUM(o.quantity * o.price) AS spent " +
                           "FROM orders o JOIN users u ON u.id = o.user_id " +
-                          "WHERE o.id > " + maxOrderId + " " +
+                          "WHERE o.id > " + maxOrderIdOriginal + " " +
                           "GROUP BY state_id, product_id;";
   newOrdersRS = newOrderStmt.executeQuery(newOrdersQuery);
 
