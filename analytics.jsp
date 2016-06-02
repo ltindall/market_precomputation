@@ -353,7 +353,7 @@ function updateTable(newData) {
 
     rowHeader = document.getElementById(key.substring(0,key.indexOf(","))+",-1"); 
     if(rowHeader != null){
-        rowHeader.innerHTML = rowHeader.innerHTML.substring(0,3)+ " ("+ (parseFloat(rowHeader.innerHTML.substring(4,rowHeader.innerHTML.length -1)) + parseFloat(base.newOrders[key])) +")"; 
+        rowHeader.innerHTML = rowHeader.innerHTML.substring(0,rowHeader.innerHTML.indexOf("("))+ " ("+ (parseFloat(rowHeader.innerHTML.substring(rowHeader.innerHTML.indexOf("(")+1,rowHeader.innerHTML.length -1)) + parseFloat(base.newOrders[key])) +")"; 
         rowHeader.style.color = "red"; 
         redCell = document.getElementById(key);
     } 
