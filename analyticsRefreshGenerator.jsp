@@ -29,31 +29,38 @@
 
         // out.print("running proceesing");
         conn.setAutoCommit(false);
-        ResultSet newPurchases = null;
+        ResultSet newPurchasesByProduct = null;
+        ResultSet newPurchasesByState  = null;
         Statement purchasesStmt = conn.createStatement(
             ResultSet.TYPE_SCROLL_INSENSITIVE,
             ResultSet.TYPE_SCROLL_INSENSITIVE
           );
-        newPurchases = purchasesStmt.executeQuery("SELECT u.state_id, o.product_id, o.price  FROM orders o, users u  WHERE o.user_id = u.id and o.id > "+maxOrderId+" GROUP BY u.state_id, o.product_id, o.price");
+        Statement purchasesStmt2 = conn.createStatement(
+            ResultSet.TYPE_SCROLL_INSENSITIVE,
+            ResultSet.TYPE_SCROLL_INSENSITIVE
+          );
+        newPurchasesByProduct = purchasesStmt.executeQuery("SELECT o.product_id, o.price  FROM orders o  WHERE  o.id > "+maxOrderId+" GROUP BY o.product_id, o.price");
 
+        newPurchasesByState = purchasesStmt2.executeQuery("SELECT u.state_id, o.price  FROM orders o, users u  WHERE o.user_id = u.id and o.id > "+maxOrderId+" GROUP BY u.state_id, o.price");
         PreparedStatement prodTot = null;
         prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where productId = ?");
 
-        while(newPurchases.next()){
-            prodTot.setDouble(1,newPurchases.getDouble("price"));
-            prodTot.setInt(2,newPurchases.getInt("product_id"));
+        //out.print("here");
+        while(newPurchasesByProduct.next()){
+            prodTot.setDouble(1,newPurchasesByProduct.getDouble("price"));
+            prodTot.setInt(2,newPurchasesByProduct.getInt("product_id"));
             prodTot.executeUpdate();
         }
         conn.commit();
 
-        newPurchases.beforeFirst();
+        newPurchasesByProduct.beforeFirst();
 
         PreparedStatement stateTot = null;
         stateTot = conn.prepareStatement("UPDATE statetotals set total = total + ? where stateId = ?");
-
-        while(newPurchases.next()){
-            stateTot.setDouble(1,newPurchases.getDouble("price"));
-            stateTot.setInt(2, newPurchases.getInt("state_id"));
+        //out.print("there");
+        while(newPurchasesByState.next()){
+            stateTot.setDouble(1,newPurchasesByState.getDouble("price"));
+            stateTot.setInt(2, newPurchasesByState.getInt("state_id"));
             stateTot.executeUpdate();
         }
         conn.commit();
@@ -70,6 +77,7 @@
         group by o.product_id
         */
 
+        //out.print("down here");
   ResultSet newOrdersRS = null;
 	Statement newOrderStmt = conn.createStatement(
             ResultSet.TYPE_SCROLL_INSENSITIVE,
