@@ -1,3 +1,6 @@
+/////////////////////////////////////////  
+// CODE TO CREATE PRECOMPUTATION TABLES  
+////////////////////////////////////////
   create table statetotals(
      stateid int references states(id), 
      statename text, 
@@ -11,7 +14,11 @@
         category_id text references products(category_id)
 
    )
-
+   
+   
+//////////////////////////////////////////
+// CODE TO FILL PRECOMPUTATION TABLES 
+///////////////////////////////////////
 insert into stateTotals (stateId, total)
 select u.state_id , sum(o.price) from orders o, users u 
 where o.user_id = u.id 
@@ -20,3 +27,95 @@ group by u.state_id
 insert into productTotals (product_id, total, product_name, category_id)
 select o.product_id, sum(o.price), p.name, p.category_id from orders o, products p where o.product_id = p.id
 group by o.product_id, p.name, p.category_id
+
+
+/////////////////////////////////////////////////////
+// CODE THAT TAKES CARE OF THE BUYING
+////////////////////////////////////////////////
+    if ("POST".equalsIgnoreCase(request.getMethod())) {
+		String action = request.getParameter("submit");
+		if (action != null && action.equals("insert")) {
+			int queries_num = Integer.parseInt(request.getParameter("queries_num"));
+			Random rand = new Random();
+			int random_num = rand.nextInt(30) + 1;
+			if (queries_num < random_num) random_num = queries_num;
+			Statement stmt = conn.createStatement();
+			//replaced random_num with 100 as it wasn't working
+			stmt.executeQuery("SELECT proc_insert_orders(" + queries_num + ", "+random_num+")");
+			out.println("<script>alert('" + queries_num + " orders are inserted!');</script>");
+		}
+		else if (action != null && action.equals("refresh")) {
+			//Need to implement.
+		}
+    }
+    
+    
+///////////////////////////////////////////////
+// NOTE ABOUT LOG
+////////////////////////////////////////////////
+/* 
+Instead of using a log table to track recent orders we used json/post data and an 
+application scope variable. The application scope variable (application.getAttribute("maxOrderId")) 
+tracks the id of the last order used to update the precompute table. Since it is application scoped 
+this variable is updated for all users across all sessions whenever the precomputed tables are updated. 
+The other variable is a combination of json/post data that is passed back and forth between the page which 
+generates the table and the jsp which processes the "refresh" button hits. We also called it maxOrderId and 
+it represents the id of the last order used to generate the currently displayed table. It is updated whenever 
+new orders are used to update the displayed grid table. We thought this would be simpler than a log table 
+and would save space, query time. 
+
+These variables can be found in the section below and in our analytics.jsp and analyticsRefreshGenerator.jsp
+*/ 
+
+	
+	
+//////////////////////////////////////////////////////////////////////////////
+// CODE TO UPDATE PRECOMPUTATION TABLES, THIS GETS EXECUTED ON RUN OR REFRESH
+/////////////////////////////////////////////////////////////////////////////
+
+        int maxOrderId;
+        int maxOrderIdOriginal = 0;
+        try{
+		maxOrderId = Integer.parseInt(request.getParameter("maxOrderId"));
+            maxOrderIdOriginal = Integer.parseInt(request.getParameter("maxOrderId"));
+            if(maxOrderId < (Integer)application.getAttribute("maxOrderId")){
+                maxOrderId = (Integer)application.getAttribute("maxOrderId");
+            }
+            application.setAttribute("maxOrderId", maxOrderId);
+
+	    }catch(Exception e){
+		    maxOrderId = 0;
+            maxOrderIdOriginal = 0;
+	    }
+
+        ResultSet newPurchasesByProduct = null;
+        ResultSet newPurchasesByState  = null;
+        Statement purchasesStmt = conn.createStatement(
+            ResultSet.TYPE_SCROLL_INSENSITIVE,
+            ResultSet.TYPE_SCROLL_INSENSITIVE
+          );
+        Statement purchasesStmt2 = conn.createStatement(
+            ResultSet.TYPE_SCROLL_INSENSITIVE,
+            ResultSet.TYPE_SCROLL_INSENSITIVE
+          );
+        newPurchasesByProduct = purchasesStmt.executeQuery("SELECT o.product_id, o.price  FROM orders o  WHERE  o.id > "+maxOrderId+" GROUP BY o.product_id, o.price");
+
+        newPurchasesByState = purchasesStmt2.executeQuery("SELECT u.state_id, o.price  FROM orders o, users u  WHERE o.user_id = u.id and o.id > "+maxOrderId+" GROUP BY u.state_id, o.price");
+        PreparedStatement prodTot = null;
+        prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where product_id = ?");
+
+        while(newPurchasesByProduct.next()){
+            prodTot.setDouble(1,newPurchasesByProduct.getDouble("price"));
+            prodTot.setInt(2,newPurchasesByProduct.getInt("product_id"));
+            prodTot.executeUpdate();
+        }
+        newPurchasesByProduct.beforeFirst();
+        
+        PreparedStatement stateTot = null;
+        stateTot = conn.prepareStatement("UPDATE statetotals set total = total + ? where stateId = ?");
+        while(newPurchasesByState.next()){
+            stateTot.setDouble(1,newPurchasesByState.getDouble("price"));
+            stateTot.setInt(2, newPurchasesByState.getInt("state_id"));
+            stateTot.executeUpdate();
+        }
+
