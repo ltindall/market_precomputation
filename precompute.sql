@@ -8,7 +8,7 @@ create table statetotals(
         product_id int references products(id), 
         total float, 
         product_name text, 
-        category_id text references categories(id)
+        category_id int references categories(id)
 
    ); 
    
