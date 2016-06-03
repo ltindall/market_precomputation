@@ -130,7 +130,7 @@
     <div class="row" id="unseenProductsDiv" style="display: none;">
       <br>
       <div id="unseenProducts" class="well">
-        <strong>New top 50 products not shown: </strong>
+        <strong>The top 50 products have changed, these products are currently not shown: </strong>
       </div>
     </div>
 </div>
@@ -404,10 +404,6 @@ function updateTable(newData) {
 		  element.innerHTML = element.innerHTML.replace(number, Number(number + Number(redCell.innerHTML)).toFixed(2));
 		  element.style.color="red";
 	    }
-      // else {
-      //   console.log("-1" + redCell.id.substring(redCell.id.indexOf(",")));
-      //   document.getElementById("unseenProducts").innerHTML = document.getElementById("unseenProducts").innerHTML + ", " + 1;
-      // }
       // updating each index column (leftmost and topmost)
       // splitKey = key.split(",");
       // var stateCell = document.getElementById(splitKey[0] + ",-1");
