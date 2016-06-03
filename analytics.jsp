@@ -50,17 +50,17 @@
             	//e.printStackTrace();
             }
 
-            
+
             int maxOrderIdOld;
-           
+
             try{
-              maxOrderIdOld = (Integer)application.getAttribute("maxOrderId");                 
+              maxOrderIdOld = (Integer)application.getAttribute("maxOrderId");
             }catch(Exception e){
                     maxOrderIdOld = 0;
-             
+
             }
 
-            //out.print(maxOrderId); 
+            //out.print(maxOrderId);
             // out.print("running proceesing");
             //conn.setAutoCommit(false);
             ResultSet newPurchasesByProduct = null;
@@ -79,14 +79,14 @@
             PreparedStatement prodTot = null;
             prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where product_id = ?");
 
-           while(newPurchasesByProduct.next()){ 
+           while(newPurchasesByProduct.next()){
                 prodTot.setDouble(1,newPurchasesByProduct.getDouble("price"));
                 prodTot.setInt(2,newPurchasesByProduct.getInt("product_id"));
                 prodTot.executeUpdate();
-               
+
             }
             //conn.commit();
-          
+
             newPurchasesByProduct.beforeFirst();
 
 
@@ -100,7 +100,7 @@
             }
             //conn.commit();
             conn.setAutoCommit(true);
-        
+
 
             Statement stmt = conn.createStatement(
               ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -140,7 +140,7 @@
     ResultSet ordersMaxId = orderStmt.executeQuery("SELECT MAX(id) AS maxOrderId FROM orders");
     ordersMaxId.next();
     int maxOrderId = ordersMaxId.getInt("maxOrderId");
-    application.setAttribute("maxOrderId", maxOrderId); 
+    application.setAttribute("maxOrderId", maxOrderId);
     DecimalFormat df = new DecimalFormat("#0.00");
 %>
 <body>
@@ -369,21 +369,12 @@ function updateTable(newData) {
 	  return true;
   });
 
-  // var missingColumns = [];
-  // missingColumns = columnIds.filter(function(x) {
-	//   var keys = Object.keys(topLevel);
-	//   for(var i = 0; i < keys.length; ++i){
-	//   	if(topLevel[keys[i]].prodId == x.substring(3)){
-	// 		return true;
-	// 	}
-	//   }
-	//   return false;
-  // });
-
   var unseenStart = true;
+  var element = null;
+  var unseen = document.getElementById("unseenProducts");
+  var unseenStr = "";
   for(var key in topLevel) {
-    var element = document.getElementById("-1,"+topLevel[key].prodId);
-    var unseen = document.getElementById("unseenProducts");
+    element = document.getElementById("-1,"+topLevel[key].prodId);
 
     if(element == null) {
 
@@ -391,7 +382,8 @@ function updateTable(newData) {
         unseen.innerHTML += ", ";
       }
 
-      unseen.innerHTML += topLevel[key].prodName;
+      unseenStr = topLevel[key].prodName + " (" + topLevel[key].totalProd + ")";
+      unseen.innerHTML += unseenStr;
       unseenStart = false;
     }
   }
