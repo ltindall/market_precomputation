@@ -77,7 +77,6 @@
             	"k.prodid = o.product_id GROUP BY k.state, k.totalState, k.prodid, k.prodname, k.totalprod, " +
             	"k.stateid ORDER BY k.totalstate DESC, k.totalprod DESC;";
             if(!analyticsQuery.equals("")){
-            	System.err.println(analyticsQuery);
             	startTime = System.currentTimeMillis();
                 rs = stmt.executeQuery(analyticsQuery);
                 endTime = System.currentTimeMillis();
@@ -293,6 +292,7 @@ function updateTable(newData) {
   var columnIds = [];
   for(var i = 0; i < columns.length; ++i){ //scrape column IDs off
   	columnIds[i] = columns[i].id;
+    columns[i].style.color="black";
   }
   var rows = document.getElementsByClassName("rowHeader"); 
   var rowIds = []; 
@@ -321,6 +321,7 @@ function updateTable(newData) {
   });
   
   //update column headers to be red or black.
+  /*
   Object.keys(topLevel).forEach(function(key) {
 	  var element = document.getElementById("-1,"+topLevel[key].prodId);
 	  if(element != null){
@@ -332,7 +333,7 @@ function updateTable(newData) {
 			  element.style.color="black";
 		  }
 	  }
-  });
+  });*/
   
   //update all red cells NOT COLUMN HEADERS
   for(i = 0; i< rowIds.length; ++i ){
@@ -348,8 +349,8 @@ function updateTable(newData) {
   }
   var rowsToUpdate = []; 
   for (var key in base.newOrders) {
-    console.log(key.substring(0,key.indexOf(",")));
-    console.log(key);
+    //console.log(key.substring(0,key.indexOf(",")));
+    //console.log(key);
     rowsToUpdate.push(key.substring(0,key.indexOf(","))+",-1"); 
 
     rowHeader = document.getElementById(key.substring(0,key.indexOf(","))+",-1"); 
@@ -360,11 +361,13 @@ function updateTable(newData) {
     } 
     if(redCell != null) {
       redCell.style.color = "red";
-      //var newVal = Number(base.newOrders[key]).toFixed(2); 
-      //redCell.innerHTML = newVal; 
-      //redCell.style.backgroundColor = "red";
       redCell.innerHTML = Number(parseInt(redCell.innerHTML) + parseInt(base.newOrders[key])).toFixed(2);
-
+      var element = document.getElementById("-1" + redCell.id.substring(redCell.id.indexOf(",")));
+      if(element != null){
+		  var number = element.innerHTML.substring(element.innerHTML.indexOf("(")+1, element.innerHTML.length-1);
+		  element.innerHTML = element.innerHTML.replace(number, Number(number + Number(redCell.innerHTML)).toFixed(2));
+		  element.style.color="red";
+	  }
       // updating each index column (leftmost and topmost)
       // splitKey = key.split(",");
       // var stateCell = document.getElementById(splitKey[0] + ",-1");
