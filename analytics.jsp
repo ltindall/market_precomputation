@@ -128,10 +128,11 @@
     </div>
 </div>
   <% if ("POST".equalsIgnoreCase(request.getMethod())) { %>
-  <div>
+  <div style="display: inline-block; text-align: right;">
+  <button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
     <table id="resultTable" class="table table-striped">
       <tr>
-        <td></td>
+        <td><button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button></td>
         <% int count = 0;
         int firstId = -1;
         if(rs != null){
@@ -192,7 +193,8 @@
       }
        %>
       </tr>
-    </table>
+    </table> 
+      <button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>   
   </div>
   <% } /* endif */ %>
 <%
