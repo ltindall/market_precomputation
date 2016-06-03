@@ -187,6 +187,9 @@
     </div>
 </div>
   <% if ("POST".equalsIgnoreCase(request.getMethod())) { %>
+  <div style="margin-left: 20px;">
+    <button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
+  </div>
   <div>
     <table id="resultTable" class="table table-striped">
       <tr>
@@ -211,6 +214,7 @@
               } //end while
               rs.beforeFirst();
         }%>
+        <td><button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button></td>
       </tr>
       <tr>
       <%
@@ -250,6 +254,7 @@
     	      <% } /* end while */
       }
        %>
+       <td><button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button></td>
       </tr>
     </table>
   </div>
