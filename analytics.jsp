@@ -127,6 +127,12 @@
             <input class="btn btn-primary" type="submit" name="query" value="Run Query"/>
         </form>
     </div>
+    <div class="row" id="unseenProductsDiv" style="display: none;">
+      <br>
+      <div id="unseenProducts" class="well">
+        <strong>New top 50 products not shown: </strong>
+      </div>
+    </div>
 </div>
   <% if ("POST".equalsIgnoreCase(request.getMethod())) { %>
   <div>
@@ -207,7 +213,7 @@
 	<button class="btn btn-primary"  onclick='insertOrders()'>Insert </button>
 <!--</form>-->
 	<button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
-        <p id="testing"></p> 
+        <p id="testing"></p>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 </body>
@@ -260,13 +266,13 @@ function insertOrders() {
         request.send("submit=insert&queries_num="+queries_num);
 }
 
-var newMaxOrderId = 0;  
+var newMaxOrderId = 0;
 function refreshData(category, maxOrderId) {
         if(newMaxOrderId > maxOrderId){
-            console.log("max reset"); 
-            maxOrderId = newMaxOrderId; 
-        } 
-        console.log("max should be = "+newMaxOrderId); 
+            console.log("max reset");
+            maxOrderId = newMaxOrderId;
+        }
+        console.log("max should be = "+newMaxOrderId);
         console.log("max order id = " + maxOrderId);
 	var request = null;
 	try{
@@ -286,7 +292,7 @@ function updateTable(newData) {
   var base = JSON.parse(newData);
   console.log(base);
   var redCell = null;
-  newMaxOrderId = 0+ base.newMaxOrderId;  
+  newMaxOrderId = 0+ base.newMaxOrderId;
   var topLevel = base.topProducts; //build JSON object
   var columns = document.getElementsByClassName("columnHeader"); //get current columns
   var columnIds = [];
@@ -294,10 +300,10 @@ function updateTable(newData) {
   	columnIds[i] = columns[i].id;
     columns[i].style.color="black";
   }
-  var rows = document.getElementsByClassName("rowHeader"); 
-  var rowIds = []; 
+  var rows = document.getElementsByClassName("rowHeader");
+  var rowIds = [];
   for(var i = 0; i < rows.length; ++i){
-      rowIds[i] = rows[i].id; 
+      rowIds[i] = rows[i].id;
   }
   //find all columns in current set not in latest top 50
   var purpleColumns = [];
@@ -310,6 +316,37 @@ function updateTable(newData) {
 	  }
 	  return true;
   });
+
+  // var missingColumns = [];
+  // missingColumns = columnIds.filter(function(x) {
+	//   var keys = Object.keys(topLevel);
+	//   for(var i = 0; i < keys.length; ++i){
+	//   	if(topLevel[keys[i]].prodId == x.substring(3)){
+	// 		return true;
+	// 	}
+	//   }
+	//   return false;
+  // });
+
+  var unseenStart = true;
+  for(var key in topLevel) {
+    var element = document.getElementById("-1,"+topLevel[key].prodId);
+    var unseen = document.getElementById("unseenProducts");
+
+    if(element == null) {
+
+      if(!unseenStart) {
+        console.log(unseen.innerHTML);
+        unseen.innerHTML += ", ";
+      }
+
+      unseen.innerHTML += topLevel[key].prodName;
+      unseenStart = false;
+    }
+  }
+  if(!unseenStart) {
+    document.getElementById("unseenProductsDiv").style.display = "";
+  }
   //var newColumns = Object.keys(topLevel).filter(function(x) { return columnIds.indexOf(x) < 0; });
   //set all cells in purple columns to have purple text
   Object.keys(purpleColumns).forEach(function(key) {
@@ -319,7 +356,7 @@ function updateTable(newData) {
 	  		elements[key1].style.color = "purple";
 	  });
   });
-  
+
   //update column headers to be red or black.
   /*
   Object.keys(topLevel).forEach(function(key) {
@@ -334,31 +371,31 @@ function updateTable(newData) {
 		  }
 	  }
   });*/
-  
+
   //update all red cells NOT COLUMN HEADERS
   for(i = 0; i< rowIds.length; ++i ){
-    document.getElementById(rowIds[i]).style.color = "black"; 
+    document.getElementById(rowIds[i]).style.color = "black";
     for(j = 0; j < columnIds.length; ++j ){
         if(!((rowIds[i][0])+","+(columnIds[j][1]) in base.newOrders)){
-            var currentElement = document.getElementById((rowIds[i].substring(0,rowIds[i].length-3))+","+(columnIds[j].substring(3))); 
+            var currentElement = document.getElementById((rowIds[i].substring(0,rowIds[i].length-3))+","+(columnIds[j].substring(3)));
             if(currentElement.style.color == "red"){
             	currentElement.style.color = "black";
             }
         }
     }
   }
-  var rowsToUpdate = []; 
+  var rowsToUpdate = [];
   for (var key in base.newOrders) {
     //console.log(key.substring(0,key.indexOf(",")));
     //console.log(key);
-    rowsToUpdate.push(key.substring(0,key.indexOf(","))+",-1"); 
+    rowsToUpdate.push(key.substring(0,key.indexOf(","))+",-1");
 
-    rowHeader = document.getElementById(key.substring(0,key.indexOf(","))+",-1"); 
+    rowHeader = document.getElementById(key.substring(0,key.indexOf(","))+",-1");
     if(rowHeader != null){
-        rowHeader.innerHTML = rowHeader.innerHTML.substring(0,rowHeader.innerHTML.indexOf("("))+ " ("+ (parseFloat(rowHeader.innerHTML.substring(rowHeader.innerHTML.indexOf("(")+1,rowHeader.innerHTML.length -1)) + parseFloat(base.newOrders[key])) +")"; 
-        rowHeader.style.color = "red"; 
+        rowHeader.innerHTML = rowHeader.innerHTML.substring(0,rowHeader.innerHTML.indexOf("("))+ " ("+ (parseFloat(rowHeader.innerHTML.substring(rowHeader.innerHTML.indexOf("(")+1,rowHeader.innerHTML.length -1)) + parseFloat(base.newOrders[key])) +")";
+        rowHeader.style.color = "red";
         redCell = document.getElementById(key);
-    } 
+    }
     if(redCell != null) {
       redCell.style.color = "red";
       redCell.innerHTML = Number(parseInt(redCell.innerHTML) + parseInt(base.newOrders[key])).toFixed(2);
@@ -367,7 +404,11 @@ function updateTable(newData) {
 		  var number = element.innerHTML.substring(element.innerHTML.indexOf("(")+1, element.innerHTML.length-1);
 		  element.innerHTML = element.innerHTML.replace(number, Number(number + Number(redCell.innerHTML)).toFixed(2));
 		  element.style.color="red";
-	  }
+	    }
+      // else {
+      //   console.log("-1" + redCell.id.substring(redCell.id.indexOf(",")));
+      //   document.getElementById("unseenProducts").innerHTML = document.getElementById("unseenProducts").innerHTML + ", " + 1;
+      // }
       // updating each index column (leftmost and topmost)
       // splitKey = key.split(",");
       // var stateCell = document.getElementById(splitKey[0] + ",-1");
@@ -384,8 +425,8 @@ function updateTable(newData) {
   /*
   for(i = 0; i< rowIds.length; ++i ){
     if(rowsToUpdate.indexOf(rowIds[i]) == -1){
-        console.log("turned row header black"); 
-        document.getElementById(rowIds[i]).style.color = "black"; 
+        console.log("turned row header black");
+        document.getElementById(rowIds[i]).style.color = "black";
     }
   }
   */
