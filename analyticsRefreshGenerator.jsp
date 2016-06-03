@@ -100,7 +100,7 @@
 
   String newOrdersQuery = "SELECT u.state_id AS stateId, o.product_id AS prodId, SUM(o.quantity * o.price) AS spent " +
                           "FROM orders o JOIN users u ON u.id = o.user_id " +
-                          "WHERE o.id > " + maxOrderIdOriginal -  + " " +
+                          "WHERE o.id > " + maxOrderIdOriginal + " " +
                           "GROUP BY state_id, product_id;";
   newOrdersRS = newOrderStmt.executeQuery(newOrdersQuery);
 
@@ -110,10 +110,10 @@
             ResultSet.TYPE_SCROLL_INSENSITIVE
           );
 
-	// String top50Query = "SELECT product_id as prodId, product_name as prodName, MAX(total) as totalProd FROM producttotals ";
-  String top50Query = "SELECT p3.id AS prodId, p3.name AS prodName, COALESCE(SUM(o.price * o.quantity),0) AS totalProd " +
+	String top50Query = "SELECT product_id as prodId, product_name as prodName, MAX(total) as totalProd FROM producttotals ";
+  /*String top50Query = "SELECT p3.id AS prodId, p3.name AS prodName, COALESCE(SUM(o.price * o.quantity),0) AS totalProd " +
              "FROM Products p3 LEFT JOIN Orders o ON p3.id = o.product_id " +
-             "WHERE (o.is_cart = false OR o.is_cart IS NULL) ";
+             "WHERE (o.is_cart = false OR o.is_cart IS NULL) ";*/
   if(category != 0) {
       top50Query += "WHERE categoryId = " + category + " ";
   }

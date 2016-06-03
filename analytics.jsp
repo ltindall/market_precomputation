@@ -336,7 +336,6 @@ function updateTable(newData) {
     if(element == null) {
 
       if(!unseenStart) {
-        console.log(unseen.innerHTML);
         unseen.innerHTML += ", ";
       }
 
