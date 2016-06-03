@@ -20,21 +20,21 @@
 	}
 
         int maxOrderId;
-        int maxOrderIdOriginal = 0; 
+        int maxOrderIdOriginal = 0;
         try{
 		maxOrderId = Integer.parseInt(request.getParameter("maxOrderId"));
-                maxOrderIdOriginal = Integer.parseInt(request.getParameter("maxOrderId")); 
+                maxOrderIdOriginal = Integer.parseInt(request.getParameter("maxOrderId"));
                 if(maxOrderId < (Integer)application.getAttribute("maxOrderId")){
-                    maxOrderId = (Integer)application.getAttribute("maxOrderId"); 
-                } 
-                application.setAttribute("maxOrderId", maxOrderId); 
-            
+                    maxOrderId = (Integer)application.getAttribute("maxOrderId");
+                }
+                application.setAttribute("maxOrderId", maxOrderId);
+
 	}catch(Exception e){
 		maxOrderId = 0;
-                maxOrderIdOriginal = 0; 
+                maxOrderIdOriginal = 0;
 	}
 
-        //out.print(maxOrderId); 
+        //out.print(maxOrderId);
         // out.print("running proceesing");
         //conn.setAutoCommit(false);
         ResultSet newPurchasesByProduct = null;
@@ -54,16 +54,16 @@
         prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where product_id = ?");
 
        while(newPurchasesByProduct.next()){
-        
-          
-       
+
+
+
             prodTot.setDouble(1,newPurchasesByProduct.getDouble("price"));
             prodTot.setInt(2,newPurchasesByProduct.getInt("product_id"));
             prodTot.executeUpdate();
-           
+
         }
         //conn.commit();
-      
+
         newPurchasesByProduct.beforeFirst();
 
 
@@ -77,7 +77,7 @@
         }
         //conn.commit();
         conn.setAutoCommit(true);
-  
+
 
         /*
         sql to fill precompute tables with initial data
@@ -127,7 +127,7 @@
 
   if(newOrdersRS != null) {
     while(newOrdersRS.next()) {
-     
+
       newOrdersJson.put(newOrdersRS.getInt("stateId") + "," + newOrdersRS.getInt("prodId"), newOrdersRS.getDouble("spent"));
     }
   }

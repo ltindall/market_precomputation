@@ -50,6 +50,58 @@
             	//e.printStackTrace();
             }
 
+
+            int maxOrderIdOld;
+
+            try{
+              maxOrderIdOld = (Integer)application.getAttribute("maxOrderId");
+            }catch(Exception e){
+                    maxOrderIdOld = 0;
+
+            }
+
+            //out.print(maxOrderId);
+            // out.print("running proceesing");
+            //conn.setAutoCommit(false);
+            ResultSet newPurchasesByProduct = null;
+            ResultSet newPurchasesByState  = null;
+            Statement purchasesStmt = conn.createStatement(
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_INSENSITIVE
+              );
+            Statement purchasesStmt2 = conn.createStatement(
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_INSENSITIVE
+              );
+            newPurchasesByProduct = purchasesStmt.executeQuery("SELECT o.product_id, o.price  FROM orders o  WHERE  o.id > "+maxOrderIdOld+" GROUP BY o.product_id, o.price");
+
+            newPurchasesByState = purchasesStmt2.executeQuery("SELECT u.state_id, o.price  FROM orders o, users u  WHERE o.user_id = u.id and o.id > "+maxOrderIdOld+" GROUP BY u.state_id, o.price");
+            PreparedStatement prodTot = null;
+            prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where product_id = ?");
+
+           while(newPurchasesByProduct.next()){
+                prodTot.setDouble(1,newPurchasesByProduct.getDouble("price"));
+                prodTot.setInt(2,newPurchasesByProduct.getInt("product_id"));
+                prodTot.executeUpdate();
+
+            }
+            //conn.commit();
+
+            newPurchasesByProduct.beforeFirst();
+
+
+            PreparedStatement stateTot = null;
+            stateTot = conn.prepareStatement("UPDATE statetotals set total = total + ? where stateId = ?");
+            //out.print("there");
+            while(newPurchasesByState.next()){
+                stateTot.setDouble(1,newPurchasesByState.getDouble("price"));
+                stateTot.setInt(2, newPurchasesByState.getInt("state_id"));
+                stateTot.executeUpdate();
+            }
+            //conn.commit();
+            conn.setAutoCommit(true);
+
+
             Statement stmt = conn.createStatement(
               ResultSet.TYPE_SCROLL_INSENSITIVE,
               ResultSet.TYPE_SCROLL_INSENSITIVE
@@ -59,7 +111,7 @@
             "SELECT k.stateid AS userid, k.state AS username, k.totalState AS totaluser, " +
             "k.prodid, k.prodname, k.totalprod, COALESCE(SUM(o.price * o.quantity),0) AS spent FROM " +
             	"(SELECT p.id AS prodId, p.name AS prodName, p.totalprod, " +
-            	"u.id AS stateid, u.name AS state, u.totalstate FROM " +
+            	"u.id AS stateid, u.statename AS state, u.totalstate FROM " +
             		"(SELECT * FROM ( SELECT product_id as id, product_name as name, MAX(total) AS " +
             		"totalProd FROM producttotals ";
             if(category != 0){
@@ -69,9 +121,9 @@
             "GROUP BY id, name ORDER BY totalprod DESC ) " +
             "p2 LIMIT 50) p, " +
             	"(SELECT * FROM " +
-            		"( SELECT MAX(s.id) as id, s.name, COALESCE(SUM(o.price * o.quantity),0) " +
-            		"AS totalState FROM Users u3 LEFT JOIN Orders o ON u3.id = o.user_id LEFT JOIN States s ON u3.state_id = s.id WHERE " +
-            		"o.is_cart = false OR o.is_cart IS NULL GROUP BY s.name ORDER BY totalstate DESC ) " +
+            		"( SELECT t.stateid as id, t.statename, total " +
+            		"AS totalState FROM stateTotals t  " +
+            		"ORDER BY totalstate DESC ) " +
              		"u2 LIMIT 50) u ) k  JOIN Users u4 ON u4.state_id = k.stateid LEFT JOIN " +
             	"(SELECT * FROM Orders o2 WHERE o2.is_cart = false) o ON u4.id = o.user_id AND " +
             	"k.prodid = o.product_id GROUP BY k.state, k.totalState, k.prodid, k.prodname, k.totalprod, " +
@@ -88,7 +140,7 @@
     ResultSet ordersMaxId = orderStmt.executeQuery("SELECT MAX(id) AS maxOrderId FROM orders");
     ordersMaxId.next();
     int maxOrderId = ordersMaxId.getInt("maxOrderId");
-
+    application.setAttribute("maxOrderId", maxOrderId);
     DecimalFormat df = new DecimalFormat("#0.00");
 %>
 <body>
@@ -127,11 +179,17 @@
             <input class="btn btn-primary" type="submit" name="query" value="Run Query"/>
         </form>
     </div>
+    <div class="row" id="unseenProductsDiv" style="display: none;">
+      <br>
+      <div id="unseenProducts" class="well">
+        <strong>The top 50 products have changed, these products are currently not shown: </strong>
+      </div>
+    </div>
 </div>
   <% if ("POST".equalsIgnoreCase(request.getMethod())) { %>
   <div style="display: inline-block; text-align: right;">
   <button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
-    <table id="resultTable" class="table table-striped">
+<table id="resultTable" class="table table-striped">
       <tr>
         <td><button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button></td>
         <% int count = 0;
@@ -209,7 +267,7 @@
 	<button class="btn btn-primary"  onclick='insertOrders()'>Insert </button>
 <!--</form>-->
 	<button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
-        <p id="testing"></p> 
+        <p id="testing"></p>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
 </body>
@@ -262,13 +320,13 @@ function insertOrders() {
         request.send("submit=insert&queries_num="+queries_num);
 }
 
-var newMaxOrderId = 0;  
+var newMaxOrderId = 0;
 function refreshData(category, maxOrderId) {
         if(newMaxOrderId > maxOrderId){
-            console.log("max reset"); 
-            maxOrderId = newMaxOrderId; 
-        } 
-        console.log("max should be = "+newMaxOrderId); 
+            console.log("max reset");
+            maxOrderId = newMaxOrderId;
+        }
+        console.log("max should be = "+newMaxOrderId);
         console.log("max order id = " + maxOrderId);
 	var request = null;
 	try{
@@ -288,7 +346,7 @@ function updateTable(newData) {
   var base = JSON.parse(newData);
   console.log(base);
   var redCell = null;
-  newMaxOrderId = 0+ base.newMaxOrderId;  
+  newMaxOrderId = 0+ base.newMaxOrderId;
   var topLevel = base.topProducts; //build JSON object
   var columns = document.getElementsByClassName("columnHeader"); //get current columns
   var columnIds = [];
@@ -296,10 +354,10 @@ function updateTable(newData) {
   	columnIds[i] = columns[i].id;
     columns[i].style.color="black";
   }
-  var rows = document.getElementsByClassName("rowHeader"); 
-  var rowIds = []; 
+  var rows = document.getElementsByClassName("rowHeader");
+  var rowIds = [];
   for(var i = 0; i < rows.length; ++i){
-      rowIds[i] = rows[i].id; 
+      rowIds[i] = rows[i].id;
   }
   //find all columns in current set not in latest top 50
   var purpleColumns = [];
@@ -312,6 +370,28 @@ function updateTable(newData) {
 	  }
 	  return true;
   });
+
+  var unseenStart = true;
+  var element = null;
+  var unseen = document.getElementById("unseenProducts");
+  var unseenStr = "";
+  for(var key in topLevel) {
+    element = document.getElementById("-1,"+topLevel[key].prodId);
+
+    if(element == null) {
+
+      if(!unseenStart) {
+        unseen.innerHTML += ", ";
+      }
+
+      unseenStr = topLevel[key].prodName + " (" + topLevel[key].totalProd + ")";
+      unseen.innerHTML += unseenStr;
+      unseenStart = false;
+    }
+  }
+  if(!unseenStart) {
+    document.getElementById("unseenProductsDiv").style.display = "";
+  }
   //var newColumns = Object.keys(topLevel).filter(function(x) { return columnIds.indexOf(x) < 0; });
   //set all cells in purple columns to have purple text
   Object.keys(purpleColumns).forEach(function(key) {
@@ -321,7 +401,7 @@ function updateTable(newData) {
 	  		elements[key1].style.color = "purple";
 	  });
   });
-  
+
   //update column headers to be red or black.
   /*
   Object.keys(topLevel).forEach(function(key) {
@@ -336,31 +416,31 @@ function updateTable(newData) {
 		  }
 	  }
   });*/
-  
+
   //update all red cells NOT COLUMN HEADERS
   for(i = 0; i< rowIds.length; ++i ){
-    document.getElementById(rowIds[i]).style.color = "black"; 
+    document.getElementById(rowIds[i]).style.color = "black";
     for(j = 0; j < columnIds.length; ++j ){
         if(!((rowIds[i][0])+","+(columnIds[j][1]) in base.newOrders)){
-            var currentElement = document.getElementById((rowIds[i].substring(0,rowIds[i].length-3))+","+(columnIds[j].substring(3))); 
+            var currentElement = document.getElementById((rowIds[i].substring(0,rowIds[i].length-3))+","+(columnIds[j].substring(3)));
             if(currentElement.style.color == "red"){
             	currentElement.style.color = "black";
             }
         }
     }
   }
-  var rowsToUpdate = []; 
+  var rowsToUpdate = [];
   for (var key in base.newOrders) {
     //console.log(key.substring(0,key.indexOf(",")));
     //console.log(key);
-    rowsToUpdate.push(key.substring(0,key.indexOf(","))+",-1"); 
+    rowsToUpdate.push(key.substring(0,key.indexOf(","))+",-1");
 
-    rowHeader = document.getElementById(key.substring(0,key.indexOf(","))+",-1"); 
+    rowHeader = document.getElementById(key.substring(0,key.indexOf(","))+",-1");
     if(rowHeader != null){
-        rowHeader.innerHTML = rowHeader.innerHTML.substring(0,rowHeader.innerHTML.indexOf("("))+ " ("+ (parseFloat(rowHeader.innerHTML.substring(rowHeader.innerHTML.indexOf("(")+1,rowHeader.innerHTML.length -1)) + parseFloat(base.newOrders[key])) +")"; 
-        rowHeader.style.color = "red"; 
+        rowHeader.innerHTML = rowHeader.innerHTML.substring(0,rowHeader.innerHTML.indexOf("("))+ " ("+ (parseFloat(rowHeader.innerHTML.substring(rowHeader.innerHTML.indexOf("(")+1,rowHeader.innerHTML.length -1)) + parseFloat(base.newOrders[key])) +")";
+        rowHeader.style.color = "red";
         redCell = document.getElementById(key);
-    } 
+    }
     if(redCell != null) {
       redCell.style.color = "red";
       redCell.innerHTML = Number(parseInt(redCell.innerHTML) + parseInt(base.newOrders[key])).toFixed(2);
@@ -369,7 +449,7 @@ function updateTable(newData) {
 		  var number = element.innerHTML.substring(element.innerHTML.indexOf("(")+1, element.innerHTML.length-1);
 		  element.innerHTML = element.innerHTML.replace(number, Number(number + Number(redCell.innerHTML)).toFixed(2));
 		  element.style.color="red";
-	  }
+	    }
       // updating each index column (leftmost and topmost)
       // splitKey = key.split(",");
       // var stateCell = document.getElementById(splitKey[0] + ",-1");
@@ -386,8 +466,8 @@ function updateTable(newData) {
   /*
   for(i = 0; i< rowIds.length; ++i ){
     if(rowsToUpdate.indexOf(rowIds[i]) == -1){
-        console.log("turned row header black"); 
-        document.getElementById(rowIds[i]).style.color = "black"; 
+        console.log("turned row header black");
+        document.getElementById(rowIds[i]).style.color = "black";
     }
   }
   */
