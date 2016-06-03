@@ -258,18 +258,20 @@
       </tr>
     </table>
   </div>
+  <div style="margin-left: 20px;">
+    <button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
+  </div>
   <% } /* endif */ %>
 <%
     long endJsp =  System.currentTimeMillis();
     out.print("<p>Query time: "+((double)(endTime - startTime))/1000+" seconds</p>");
     out.print("<p>JSP load time: "+((double)(endJsp - startJsp))/1000+" seconds</p>");
 %>
-<!--<form action="analytics.jsp" method="POST">-->
+<form onsubmit="event.preventDefault(); insertOrders();">
 	<label># of queries to insert</label>
-	<input type="number" name="queries_num" id="queries_num">
-	<button class="btn btn-primary"  onclick='insertOrders()'>Insert </button>
-<!--</form>-->
-	<button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
+	<input type="number" name="queries_num" id="queries_num" min="1" required>
+	<button type="submit" class="btn btn-primary">Insert</button>
+</form>
         <p id="testing"></p>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 
