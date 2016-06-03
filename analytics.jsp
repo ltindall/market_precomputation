@@ -111,7 +111,7 @@
             "SELECT k.stateid AS userid, k.state AS username, k.totalState AS totaluser, " +
             "k.prodid, k.prodname, k.totalprod, COALESCE(SUM(o.price * o.quantity),0) AS spent FROM " +
             	"(SELECT p.id AS prodId, p.name AS prodName, p.totalprod, " +
-            	"u.id AS stateid, u.name AS state, u.totalstate FROM " +
+            	"u.id AS stateid, u.statename AS state, u.totalstate FROM " +
             		"(SELECT * FROM ( SELECT product_id as id, product_name as name, MAX(total) AS " +
             		"totalProd FROM producttotals ";
             if(category != 0){
@@ -121,8 +121,8 @@
             "GROUP BY id, name ORDER BY totalprod DESC ) " +
             "p2 LIMIT 50) p, " +
             	"(SELECT * FROM " +
-            		"( SELECT t.stateid as id, s.name, total " +
-            		"AS totalState FROM stateTotals t, States s  WHERE t.stateid = s.id " +
+            		"( SELECT t.stateid as id, t.statename, total " +
+            		"AS totalState FROM stateTotals t  " +
             		"ORDER BY totalstate DESC ) " +
              		"u2 LIMIT 50) u ) k  JOIN Users u4 ON u4.state_id = k.stateid LEFT JOIN " +
             	"(SELECT * FROM Orders o2 WHERE o2.is_cart = false) o ON u4.id = o.user_id AND " +
