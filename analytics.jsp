@@ -254,8 +254,8 @@
       }
        %>
       </tr>
-    </table> 
-      <button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>   
+    </table>
+      <button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
   </div>
   <div style="margin-left: 20px;">
     <button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
@@ -379,6 +379,7 @@ function updateTable(newData) {
   var element = null;
   var unseen = document.getElementById("unseenProducts");
   var unseenStr = "";
+  unseen.innerHTML = "<strong>The top 50 products have changed, these products are currently not shown: </strong>";
   for(var key in topLevel) {
     element = document.getElementById("-1,"+topLevel[key].prodId);
 
