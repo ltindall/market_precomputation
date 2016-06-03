@@ -111,7 +111,7 @@
             "SELECT k.stateid AS userid, k.state AS username, k.totalState AS totaluser, " +
             "k.prodid, k.prodname, k.totalprod, COALESCE(SUM(o.price * o.quantity),0) AS spent FROM " +
             	"(SELECT p.id AS prodId, p.name AS prodName, p.totalprod, " +
-            	"u.id AS stateid, u.name AS state, u.totalstate FROM " +
+            	"u.id AS stateid, u.statename AS state, u.totalstate FROM " +
             		"(SELECT * FROM ( SELECT product_id as id, product_name as name, MAX(total) AS " +
             		"totalProd FROM producttotals ";
             if(category != 0){
@@ -121,8 +121,8 @@
             "GROUP BY id, name ORDER BY totalprod DESC ) " +
             "p2 LIMIT 50) p, " +
             	"(SELECT * FROM " +
-            		"( SELECT t.stateid as id, s.name, total " +
-            		"AS totalState FROM stateTotals t, States s  WHERE t.stateid = s.id " +
+            		"( SELECT t.stateid as id, t.statename, total " +
+            		"AS totalState FROM stateTotals t  " +
             		"ORDER BY totalstate DESC ) " +
              		"u2 LIMIT 50) u ) k  JOIN Users u4 ON u4.state_id = k.stateid LEFT JOIN " +
             	"(SELECT * FROM Orders o2 WHERE o2.is_cart = false) o ON u4.id = o.user_id AND " +
@@ -155,7 +155,9 @@
 </div>
 <div class="container">
     <div class="row">
+    <!--
     <h3>Global max order id: <%=application.getAttribute("maxOrderId")%></h3>
+    -->
         <form  class="form-inline" action="analytics.jsp" method="POST" id="queryForm">
             <div class="form-group">
                 <label for="row">Category</label>
@@ -187,13 +189,11 @@
     </div>
 </div>
   <% if ("POST".equalsIgnoreCase(request.getMethod())) { %>
-  <div style="margin-left: 20px;">
-    <button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
-  </div>
-  <div>
-    <table id="resultTable" class="table table-striped">
+  <div style="display: inline-block; text-align: right;">
+  <button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
+<table id="resultTable" class="table table-striped">
       <tr>
-        <td></td>
+        <td><button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button></td>
         <% int count = 0;
         int firstId = -1;
         if(rs != null){
@@ -214,7 +214,6 @@
               } //end while
               rs.beforeFirst();
         }%>
-        <td><button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button></td>
       </tr>
       <tr>
       <%
@@ -254,9 +253,9 @@
     	      <% } /* end while */
       }
        %>
-       <td><button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button></td>
       </tr>
-    </table>
+    </table> 
+      <button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>   
   </div>
   <div style="margin-left: 20px;">
     <button onclick='refreshData(<%= category %>, <%= maxOrderId %>)'>Refresh</button>
