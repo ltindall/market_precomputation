@@ -399,7 +399,7 @@ function updateTable(newData) {
   //var newColumns = Object.keys(topLevel).filter(function(x) { return columnIds.indexOf(x) < 0; });
   //set all cells in purple columns to have purple text
   Object.keys(purpleColumns).forEach(function(key) {
-	  var elements = document.querySelectorAll('[id$=\''+ purpleColumns[key].substring(3) + '\']');
+	  var elements = document.querySelectorAll('[id$=\','+ purpleColumns[key].substring(3) + '\']');
 	  Object.keys(elements).forEach(function(key1) {
 		  //console.log("elements", elements[key1].id);
 	  		elements[key1].style.color = "purple";
