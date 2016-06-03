@@ -121,9 +121,9 @@
             "GROUP BY id, name ORDER BY totalprod DESC ) " +
             "p2 LIMIT 50) p, " +
             	"(SELECT * FROM " +
-            		"( SELECT MAX(s.id) as id, s.name, COALESCE(SUM(o.price * o.quantity),0) " +
-            		"AS totalState FROM Users u3 LEFT JOIN Orders o ON u3.id = o.user_id LEFT JOIN States s ON u3.state_id = s.id WHERE " +
-            		"o.is_cart = false OR o.is_cart IS NULL GROUP BY s.name ORDER BY totalstate DESC ) " +
+            		"( SELECT t.stateid as id, s.name, total " +
+            		"AS totalState FROM stateTotals t, States s  WHERE t.stateid = s.id " +
+            		"ORDER BY totalstate DESC ) " +
              		"u2 LIMIT 50) u ) k  JOIN Users u4 ON u4.state_id = k.stateid LEFT JOIN " +
             	"(SELECT * FROM Orders o2 WHERE o2.is_cart = false) o ON u4.id = o.user_id AND " +
             	"k.prodid = o.product_id GROUP BY k.state, k.totalState, k.prodid, k.prodname, k.totalprod, " +
