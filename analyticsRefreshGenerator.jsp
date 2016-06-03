@@ -115,7 +115,7 @@
              "FROM Products p3 LEFT JOIN Orders o ON p3.id = o.product_id " +
              "WHERE (o.is_cart = false OR o.is_cart IS NULL) ";*/
   if(category != 0) {
-      top50Query += "WHERE categoryId = " + category + " ";
+      top50Query += "WHERE category_id = " + category + " ";
   }
   top50Query += "GROUP BY prodId, prodName " +
              "ORDER BY totalProd DESC " +
