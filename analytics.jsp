@@ -50,6 +50,58 @@
             	//e.printStackTrace();
             }
 
+            
+            int maxOrderIdOld;
+           
+            try{
+              maxOrderIdOld = (Integer)application.getAttribute("maxOrderId");                 
+            }catch(Exception e){
+                    maxOrderIdOld = 0;
+             
+            }
+
+            //out.print(maxOrderId); 
+            // out.print("running proceesing");
+            //conn.setAutoCommit(false);
+            ResultSet newPurchasesByProduct = null;
+            ResultSet newPurchasesByState  = null;
+            Statement purchasesStmt = conn.createStatement(
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_INSENSITIVE
+              );
+            Statement purchasesStmt2 = conn.createStatement(
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.TYPE_SCROLL_INSENSITIVE
+              );
+            newPurchasesByProduct = purchasesStmt.executeQuery("SELECT o.product_id, o.price  FROM orders o  WHERE  o.id > "+maxOrderIdOld+" GROUP BY o.product_id, o.price");
+
+            newPurchasesByState = purchasesStmt2.executeQuery("SELECT u.state_id, o.price  FROM orders o, users u  WHERE o.user_id = u.id and o.id > "+maxOrderIdOld+" GROUP BY u.state_id, o.price");
+            PreparedStatement prodTot = null;
+            prodTot  = conn.prepareStatement("UPDATE productTotals SET total = total + ? where product_id = ?");
+
+           while(newPurchasesByProduct.next()){ 
+                prodTot.setDouble(1,newPurchasesByProduct.getDouble("price"));
+                prodTot.setInt(2,newPurchasesByProduct.getInt("product_id"));
+                prodTot.executeUpdate();
+               
+            }
+            //conn.commit();
+          
+            newPurchasesByProduct.beforeFirst();
+
+
+            PreparedStatement stateTot = null;
+            stateTot = conn.prepareStatement("UPDATE statetotals set total = total + ? where stateId = ?");
+            //out.print("there");
+            while(newPurchasesByState.next()){
+                stateTot.setDouble(1,newPurchasesByState.getDouble("price"));
+                stateTot.setInt(2, newPurchasesByState.getInt("state_id"));
+                stateTot.executeUpdate();
+            }
+            //conn.commit();
+            conn.setAutoCommit(true);
+        
+
             Statement stmt = conn.createStatement(
               ResultSet.TYPE_SCROLL_INSENSITIVE,
               ResultSet.TYPE_SCROLL_INSENSITIVE
@@ -88,7 +140,7 @@
     ResultSet ordersMaxId = orderStmt.executeQuery("SELECT MAX(id) AS maxOrderId FROM orders");
     ordersMaxId.next();
     int maxOrderId = ordersMaxId.getInt("maxOrderId");
-
+    application.setAttribute("maxOrderId", maxOrderId); 
     DecimalFormat df = new DecimalFormat("#0.00");
 %>
 <body>
