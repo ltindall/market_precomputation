@@ -104,6 +104,7 @@
 </div>
 <div class="container">
     <div class="row">
+    <h3>Global max order id: <%=application.getAttribute("maxOrderId")%></h3>
         <form  class="form-inline" action="analytics.jsp" method="POST" id="queryForm">
             <div class="form-group">
                 <label for="row">Category</label>
